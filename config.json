@@ -1,0 +1,271 @@
+{
+  "site": {
+    "name": "The Follow-Through",
+    "tagline": "Europe decided. Did it deliver?",
+    "years_back": 2
+  },
+  "sections": [
+    {
+      "id": "climate",
+      "name": "Climate & Energy",
+      "kicker": "Planet",
+      "codes": [
+        "12",
+        "1510"
+      ],
+      "keywords": [
+        "climate",
+        "emission",
+        "renewable",
+        "energy",
+        "carbon",
+        "greenhouse",
+        "environment",
+        "nature",
+        "water",
+        "waste",
+        "pollution",
+        "packaging"
+      ]
+    },
+    {
+      "id": "economy",
+      "name": "Economy & Money",
+      "kicker": "Money",
+      "codes": [
+        "01",
+        "08",
+        "09",
+        "10",
+        "17"
+      ],
+      "keywords": [
+        "budget",
+        "tax",
+        "bank",
+        "financial",
+        "euro",
+        "capital",
+        "competition",
+        "insolvency",
+        "company law",
+        "payment",
+        "fiscal"
+      ]
+    },
+    {
+      "id": "digital",
+      "name": "Tech & Industry",
+      "kicker": "Tech",
+      "codes": [
+        "13",
+        "16"
+      ],
+      "keywords": [
+        "digital",
+        "artificial intelligence",
+        "data",
+        "cyber",
+        "semiconductor",
+        "industrial",
+        "internal market",
+        "product",
+        "space",
+        "research",
+        "telecom"
+      ]
+    },
+    {
+      "id": "defence",
+      "name": "Security & Defence",
+      "kicker": "Security",
+      "codes": [
+        "18"
+      ],
+      "keywords": [
+        "defence",
+        "military",
+        "security and defence",
+        "restrictive measures",
+        "CFSP",
+        "ammunition",
+        "Ukraine"
+      ]
+    },
+    {
+      "id": "world",
+      "name": "Trade & World",
+      "kicker": "World",
+      "codes": [
+        "02",
+        "11"
+      ],
+      "keywords": [
+        "trade",
+        "tariff",
+        "customs",
+        "agreement between",
+        "third countries",
+        "import",
+        "export",
+        "anti-dumping"
+      ]
+    },
+    {
+      "id": "justice",
+      "name": "Migration & Rights",
+      "kicker": "Rights",
+      "codes": [
+        "19",
+        "20"
+      ],
+      "keywords": [
+        "asylum",
+        "migration",
+        "border",
+        "visa",
+        "criminal",
+        "judicial",
+        "police",
+        "victims",
+        "Schengen",
+        "citizens"
+      ]
+    },
+    {
+      "id": "health",
+      "name": "Health & Consumers",
+      "kicker": "Health",
+      "codes": [
+        "152",
+        "153",
+        "154",
+        "155"
+      ],
+      "keywords": [
+        "health",
+        "medicinal",
+        "medical",
+        "pharmaceutical",
+        "consumer",
+        "food safety",
+        "tobacco",
+        "cosmetic"
+      ]
+    },
+    {
+      "id": "farming",
+      "name": "Food & Farming",
+      "kicker": "Farming",
+      "codes": [
+        "03",
+        "04"
+      ],
+      "keywords": [
+        "agricultur",
+        "farm",
+        "fisheries",
+        "fishing",
+        "plant",
+        "seed",
+        "animal",
+        "forest",
+        "wine"
+      ]
+    },
+    {
+      "id": "transport",
+      "name": "Transport",
+      "kicker": "On the move",
+      "codes": [
+        "07"
+      ],
+      "keywords": [
+        "transport",
+        "vehicle",
+        "aviation",
+        "maritime",
+        "rail",
+        "road",
+        "driving",
+        "airport"
+      ]
+    },
+    {
+      "id": "social",
+      "name": "Jobs & Society",
+      "kicker": "Society",
+      "codes": [
+        "05",
+        "06",
+        "14"
+      ],
+      "keywords": [
+        "worker",
+        "employment",
+        "social",
+        "pay",
+        "education",
+        "regional",
+        "cohesion",
+        "disabilit",
+        "equality",
+        "platform work"
+      ]
+    }
+  ],
+  "priority": [
+    "defence",
+    "climate",
+    "health",
+    "digital",
+    "justice",
+    "transport",
+    "farming",
+    "world",
+    "social",
+    "economy"
+  ],
+  "targets": [
+    {
+      "id": "ghg2030",
+      "section": "climate",
+      "title": "Cut net greenhouse gas emissions by 55% by 2030",
+      "short": "Emissions −55% by 2030",
+      "law": "32021R1119",
+      "keywords": [
+        "climate",
+        "emission",
+        "greenhouse",
+        "carbon",
+        "CO2",
+        "renewable",
+        "energy efficiency",
+        "energy performance",
+        "fuel",
+        "methane",
+        "fluorinated",
+        "market stability reserve",
+        "allowance",
+        "ETS",
+        "2040"
+      ]
+    },
+    {
+      "id": "ren2030",
+      "section": "climate",
+      "title": "Get 42.5% of Europe's energy from renewables by 2030",
+      "short": "42.5% renewables by 2030",
+      "law": "32023L2413",
+      "keywords": [
+        "renewable",
+        "energy",
+        "electricity",
+        "hydrogen",
+        "grid",
+        "solar",
+        "wind"
+      ]
+    }
+  ]
+}
