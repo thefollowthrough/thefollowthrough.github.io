@@ -39,7 +39,8 @@ function milestones(d) {
 }
 
 function paceVerdict(t) {
-  const ratio = t.real_rate / t.need_rate;
+  if (t.progress >= 100) return { cls: 'good', text: 'Goal reached', ratio: 1 };
+  const ratio = t.need_rate ? t.real_rate / t.need_rate : 1;
   if (ratio >= 1) return { cls: 'good', text: 'On track', ratio };
   if (ratio >= 0.7) return { cls: 'warn', text: 'Slightly behind', ratio };
   return { cls: 'bad', text: 'Off track', ratio };
@@ -63,11 +64,15 @@ function score(d) {
 const pill = d => { const s = score(d); return `<span class="pill ${s.cls}"><i></i>${s.label}: ${s.pct}%</span>`; };
 const isNew = d => daysAgo(d.date) <= 14;
 const kindTag = d => `<span class="tag ${d.kind === 'EU law' ? 'law' : ''}">${esc(d.kind)}</span>`;
-const WHO = { 'EU law': 'Passed by the European Parliament and the Council', 'Council act': 'Adopted by the Council of the EU', 'Foreign policy decision': 'Foreign-policy decision by EU governments' };
+const WHO = { 'EU law': 'Passed by the European Parliament and the Council', 'Council act': 'Adopted by the Council of the EU', 'Foreign policy decision': 'Foreign-policy decision by EU governments', 'Foreign policy update': 'EU governments changed an earlier foreign-policy decision' };
 function dek(d) {
   if (d.summary) return d.summary;
   const ms = milestones(d), next = ms.find(m => m.date > TODAY), left = ms.filter(m => m.date > TODAY).length;
   let s = `${WHO[d.kind]} on ${dLong(d.date)}.`;
+  if (d.kind === 'Foreign policy update') {
+    const base = d.links.changes[0];
+    return s + (base ? ` It changes ${base.ref}.` : '') + ' Updates like this usually add or remove names, extend a deadline or change a budget: the official text says which.';
+  }
   if (next) s += ` Next step: ${next.what.split(' (')[0].toLowerCase()} on ${dLong(next.date)}${left > 1 ? `, with ${left - 1} more milestone${left > 2 ? 's' : ''} after that` : ''}.`;
   else if (d.in_force[0]) s += ` In force since ${dLong(d.in_force[0])}.`;
   if (d.links.based_on.length) s += ` ${d.links.based_on.length} follow-up action${d.links.based_on.length > 1 ? 's' : ''} so far.`;
@@ -84,6 +89,7 @@ function officialDek(d) {
 function weight(d) {
   let w = 0;
   if (d.kind === 'EU law') w += 4;
+  if (d.kind === 'Foreign policy update') w -= 4;   // routine changes never lead the front page
   if (!/^Rules rewritten|^Customs duties|^Fishing quotas|^EU updates its sanctions/.test(d.headline)) w += 2;
   if (/^EU fund steps in|^Disaster aid|^Military aid/.test(d.headline)) w -= 2;
   w += (d.targets || []).length * 2;
@@ -96,9 +102,10 @@ function weight(d) {
 function route() {
   usedPhotos.clear();
   const h = location.hash.replace(/^#\/?/, '').split('/');
-  document.querySelectorAll('nav.sections a').forEach(a => a.classList.toggle('on', a.dataset.id === h[1] && h[0] === 'section'));
+  document.querySelectorAll('nav.sections a').forEach(a => a.classList.toggle('on', (h[0] === 'section' && a.dataset.id === h[1]) || (h[0] === 'goals' && a.dataset.id === 'goals')));
   if (h[0] === 'section' && SEC[h[1]]) renderSection(SEC[h[1]]);
   else if (h[0] === 'decision' && BY_ID[decodeURIComponent(h[1])]) renderDecision(BY_ID[decodeURIComponent(h[1])]);
+  else if (h[0] === 'goals') renderGoals();
   else renderFront();
   renderCredits();
   window.scrollTo(0, 0);
@@ -110,17 +117,24 @@ function renderCredits() {
 }
 
 // ---------------------------------------------------------------- front page
+// a target's value as readers should see it: "76.1%", "19,933 deaths", "10.5 million people", or "−37.5%" vs the start
+function tval(t, v) {
+  if (t.display === 'change') { const c = (v / t.start - 1) * 100; return `${c > 0 ? '+' : c < 0 ? '−' : ''}${fmt(Math.abs(c), 1)}%`; }
+  if (t.unit === '%') return `${fmt(v, t.decimals ?? 1)}%`;
+  return `${fmt(v, t.decimals ?? 1)} ${t.unit}`;
+}
+const verdictTxt = v => `${v.text}${v.ratio > 0 && v.ratio < 1 ? `: needs to move ${fmt(1 / v.ratio, 1)}× faster` : v.ratio <= 0 ? ': going the wrong way' : ''}`;
+
 function scoreCard(t, compact) {
   const v = paceVerdict(t);
-  const last = t.series[t.last_year];
-  const lastTxt = t.unit === '%' ? `${fmt(last, 1)}% in ${t.last_year}` : `${fmt((last / t.start - 1) * 100, 1)}% in ${t.last_year}`;
+  const startTxt = t.display === 'change' ? `vs ${t.start_year}` : `from ${tval(t, t.start)} in ${t.start_year}`;
   return `<div class="score-card">
     <span class="kicker">Goal · ${esc(SEC[t.section].name)}</span>
     <div class="t">${esc(t.title)}</div>
     <div class="bar"><span style="width:${t.progress}%;background:var(--${v.cls === 'good' ? 'good' : v.cls === 'warn' ? 'warn' : 'bad'})"></span></div>
-    <div class="bar-row"><span>${lastTxt}</span><span><b>${t.progress}%</b> of the way</span></div>
-    <div class="verdict ${v.cls}">${v.text}${v.ratio < 1 ? `: needs to move ${fmt(1 / v.ratio, 1)}× faster` : ''}</div>
-    ${compact ? '' : `<p class="muted" style="font-size:14px;margin:6px 0 0">Source: ${esc(t.source)}</p>`}
+    <div class="bar-row"><span>${tval(t, t.series[t.last_year])} in ${t.last_year}${compact ? '' : ` (${startTxt})`}</span><span><b>${t.progress}%</b> of the way</span></div>
+    <div class="verdict ${v.cls}">${verdictTxt(v)}</div>
+    ${compact ? '' : `<p class="muted" style="font-size:14px;margin:6px 0 0">Set by: ${esc(t.basis)}${t.law ? ` (<a href="${eurlex(t.law)}" target="_blank" rel="noopener">text</a>)` : ''}. Data: ${esc(t.source)}.</p>`}
   </div>`;
 }
 
@@ -129,7 +143,9 @@ function renderFront() {
   const ranked = [...D.decisions].sort((a, b) => weight(b) - weight(a));
   const lead = ranked[0], top = ranked.slice(1, 4), more = ranked.slice(4, 12);
   const used = new Set([lead, ...top, ...more].map(d => d.id));
-  const latest = D.decisions.slice(0, 7);
+  // newest first, but at most 2 routine updates so new decisions stay visible
+  let nUpd = 0;
+  const latest = D.decisions.filter(d => d.kind !== 'Foreign policy update' || ++nUpd <= 2).slice(0, 7);
   // A different hemicycle photo each day (changes at midnight UTC, same for every visitor)
   const heads = D.photos.masthead;
   const leadPhoto = heads[Math.floor(Date.now() / 86400000) % heads.length]; usedPhotos.set(leadPhoto.url, leadPhoto);
@@ -146,7 +162,8 @@ function renderFront() {
     </article>
     <aside class="rail">
       <h3>The Scorecard</h3>
-      ${D.targets.map(t => scoreCard(t, true)).join('')}
+      ${D.targets.slice(0, 4).map(t => scoreCard(t, true)).join('')}
+      ${D.targets.length > 4 ? `<a class="more-goals" href="#/goals">All ${D.targets.length} goals we track →</a>` : ''}
       <h3 style="margin-top:6px">Just in</h3>
       <ul class="plain justin">${latest.map(d => `<li>
         <span class="kicker">${esc(SEC[d.section].kicker)}${isNew(d) ? '<span class="tag new">New</span>' : ''}</span>
@@ -193,6 +210,20 @@ function renderFront() {
   $app.innerHTML = html;
 }
 
+// ---------------------------------------------------------------- goals page (#/goals)
+function renderGoals() {
+  document.title = `The Scorecard · ${D.site.name}`;
+  const n = D.targets.length, on = D.targets.filter(t => paceVerdict(t).cls === 'good').length;
+  const bySec = D.sections.map(s => [s, D.targets.filter(t => t.section === s.id)]).filter(([, ts]) => ts.length);
+  $app.innerHTML = `
+    <div class="crumbs"><a href="#/">Front page</a> › The Scorecard</div>
+    <div class="section-title"><h2>The Scorecard</h2></div>
+    <p class="dek" style="max-width:760px">The EU has set itself numbers to hit by 2030. We check each one against the latest official statistics from Eurostat, every day. <b>${on} of ${n}</b> ${on === 1 ? 'is' : 'are'} on track.</p>
+    ${bySec.map(([s, ts]) => `<div class="month"><a href="#/section/${s.id}">${esc(s.name)}</a></div>
+      <div class="goals">${ts.map(t => scoreCard(t)).join('')}</div>`).join('')}
+    <p class="muted" style="font-size:14px;margin-top:24px">“% of the way” compares the latest figure with the starting year shown on each card. “Needs to move × faster” compares the pace of the last ten years with the pace needed to reach the goal by 2030.</p>`;
+}
+
 // ---------------------------------------------------------------- section page
 function renderSection(s) {
   document.title = `${s.name} · ${D.site.name}`;
@@ -216,8 +247,8 @@ function renderSection(s) {
     </div>
     ${goals.length ? `<div class="section-title" style="margin-top:22px"><h2>The goals</h2></div><div class="goals">${goals.map(t => scoreCard(t)).join('')}</div>` : ''}
     <div class="filters" id="filters">
-      ${['All', 'EU law', 'Council act', 'Foreign policy decision'].filter(k => k === 'All' || list.some(d => d.kind === k))
-        .map((k, i) => `<button data-k="${k}" class="${i ? '' : 'on'}">${k === 'All' ? 'All decisions' : k === 'EU law' ? 'Laws (Parliament + Council)' : k + 's'}</button>`).join('')}
+      ${['All', 'EU law', 'Council act', 'Foreign policy decision', 'Foreign policy update'].filter(k => k === 'All' || list.some(d => d.kind === k))
+        .map((k, i) => `<button data-k="${k}" class="${i ? '' : 'on'}">${k === 'All' ? 'All decisions' : k === 'EU law' ? 'Laws (Parliament + Council)' : k === 'Foreign policy update' ? 'Updates (sanctions, missions, aid)' : k + 's'}</button>`).join('')}
     </div>
     <div id="list"></div>`;
   const draw = k => {
@@ -319,33 +350,42 @@ function drawChart(d, sc) {
   const t = sc.target, series = Object.entries(t.series).map(([y, v]) => [+y, v]).sort((a, b) => a[0] - b[0]);
   const W = 860, H = 340, m = { l: 58, r: 24, t: 24, b: 34 };
   const x0 = series[0][0], x1 = Math.max(t.goal_year, ...t.later.map(l => l.year)) ;
-  const vals = series.map(s => s[1]).concat([t.goal]);
-  const yMax = Math.ceil(Math.max(...vals) * 1.12 / (t.unit === '%' ? 10 : 1000)) * (t.unit === '%' ? 10 : 1000);
-  const X = y => m.l + (y - x0) / (x1 - x0) * (W - m.l - m.r), Y = v => m.t + (1 - v / yMax) * (H - m.t - m.b);
   const [ly, lv] = series[series.length - 1];
+  const projEnd = x1, projRaw = lv + t.real_rate * (projEnd - ly);
+  const vals = series.map(s => s[1]).concat([t.goal, ...t.later.map(l => l.value)]);
+  // axis: start at zero when the data is close to it, otherwise zoom in so small changes stay visible
+  let lo = Math.min(...vals), hi = Math.max(...vals) * 1.08;
+  lo = lo < hi * 0.4 ? 0 : lo - (hi - lo) * 0.25;
+  const raw = (hi - lo) / 5, mag = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 2.5, 5, 10].map(k => k * mag).find(s => s >= raw);
+  const yMin = Math.floor(lo / step) * step, yMax = Math.ceil(hi / step) * step;
+  const X = y => m.l + (y - x0) / (x1 - x0) * (W - m.l - m.r), Y = v => m.t + (1 - (v - yMin) / (yMax - yMin)) * (H - m.t - m.b);
+  const projV = Math.min(yMax, Math.max(yMin, projRaw));
   const promised = [[ly, lv], [t.goal_year, t.goal], ...t.later.map(l => [l.year, l.value])];
-  const projEnd = x1, projV = Math.max(0, lv + t.real_rate * (projEnd - ly));
-  const step = t.unit === '%' ? 10 : 1000;
+  const axis = v => t.unit === '%' ? `${fmt(v, step < 1 ? 1 : 0)}%` : fmt(v, step < 1 ? 1 : 0);
   let g = '';
-  for (let v = 0; v <= yMax; v += step) g += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="#ece7dc"/><text x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end" font-size="12" fill="#6f6a60">${fmt(v)}${t.unit === '%' ? '%' : ''}</text>`;
-  for (let y = Math.ceil(x0 / 5) * 5; y <= x1; y += 5) g += `<text x="${X(y)}" y="${H - 10}" text-anchor="middle" font-size="12" fill="#6f6a60">${y}</text>`;
+  for (let v = yMin; v <= yMax + step / 2; v += step) g += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="#ece7dc"/><text x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end" font-size="12" fill="#6f6a60">${axis(v)}</text>`;
+  const ystep = x1 - x0 > 12 ? 5 : x1 - x0 > 6 ? 2 : 1;
+  for (let y = Math.ceil(x0 / ystep) * ystep; y <= x1; y += ystep) g += `<text x="${X(y)}" y="${H - 10}" text-anchor="middle" font-size="12" fill="#6f6a60">${y}</text>`;
   const path = pts => 'M' + pts.map(([a, v]) => `${X(a).toFixed(1)},${Y(v).toFixed(1)}`).join('L');
-  const goals = [[t.goal_year, t.goal, `Goal ${t.goal_year}`], ...t.later.map(l => [l.year, l.value, l.label])];
-  const lastLbl = t.unit === '%' ? `${fmt(lv, 1)}%` : `${fmt((lv / t.start - 1) * 100, 1)}%`;
+  const goals = [[t.goal_year, t.goal, `Goal ${t.goal_year}: ${tval(t, t.goal)}`], ...t.later.map(l => [l.year, l.value, l.label])];
+  const up = t.goal > t.start;   // does the line need to go up or down?
   const v = paceVerdict(t);
+  const per = t.unit === '%' ? 'percentage points' : t.unit;
+  const dp = Math.abs(t.need_rate) < 10 ? 1 : 0;
   return `<h3>${esc(t.title)}</h3>
-    <p class="sub">${esc(t.label)} (${esc(t.unit)}). Source: ${esc(t.source)}. This decision is one of the tools meant to get there.</p>
+    <p class="sub">${esc(t.label)}${t.unit === '%' ? '' : ` (${esc(t.unit)})`}. Goal set by: ${esc(t.basis)}. Data: ${esc(t.source)}. This decision is one of the tools meant to get there.</p>
     <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">${g}
       <path d="${path(promised)}" fill="none" stroke="var(--good)" stroke-width="2.5" stroke-dasharray="7 5"/>
       <path d="M${X(ly)},${Y(lv)}L${X(projEnd)},${Y(projV)}" fill="none" stroke="var(--bad)" stroke-width="2" stroke-dasharray="2 4"/>
       <path d="${path(series)}" fill="none" stroke="var(--eu)" stroke-width="3"/>
       <circle cx="${X(ly)}" cy="${Y(lv)}" r="5" fill="var(--eu)"/>
-      <text x="${X(ly) - 10}" y="${Y(lv) + (t.unit === '%' ? -14 : 24)}" text-anchor="end" font-size="13" font-weight="700" fill="var(--eu)">${ly}: ${lastLbl}</text>
+      <text x="${X(ly) - 10}" y="${Y(lv) + (up ? -14 : 24)}" text-anchor="end" font-size="13" font-weight="700" fill="var(--eu)">${ly}: ${tval(t, lv)}</text>
       ${goals.map(([a, val, l], i) => `<circle cx="${X(a)}" cy="${Y(val)}" r="6" fill="#fff" stroke="var(--good)" stroke-width="3"/>
         <text x="${X(a) + (a === x1 ? -10 : 10)}" y="${Y(val) + (i === 0 ? 26 : -12)}" text-anchor="${a === x1 ? 'end' : 'start'}" font-size="13" font-weight="700" fill="var(--good)">${esc(l)}</text>`).join('')}
     </svg>
-    <div class="legend"><span><i style="border-color:var(--eu)"></i>What actually happened</span><span><i style="border-color:var(--good);border-top-style:dashed"></i>What the law promises</span><span><i style="border-color:var(--bad);border-top-style:dotted"></i>If the current pace continues</span></div>
-    <p style="margin:16px 0 0"><b class="verdict ${v.cls}" style="display:inline">${v.text}.</b> Over the last decade the change was ${fmt(Math.abs(t.real_rate), 1)} ${esc(t.unit)} a year; reaching the goal needs ${fmt(Math.abs(t.need_rate), 1)} ${esc(t.unit)} a year.</p>
+    <div class="legend"><span><i style="border-color:var(--eu)"></i>What actually happened</span><span><i style="border-color:var(--good);border-top-style:dashed"></i>What was promised</span><span><i style="border-color:var(--bad);border-top-style:dotted"></i>If the current pace continues</span></div>
+    <p style="margin:16px 0 0"><b class="verdict ${v.cls}" style="display:inline">${verdictTxt(v)}.</b> Over the last decade the figure moved by ${fmt(Math.abs(t.real_rate), dp)} ${esc(per)} a year${(t.real_rate > 0) !== up && t.real_rate ? ' in the wrong direction' : ''}; reaching the goal needs ${fmt(Math.abs(t.need_rate), dp)} ${esc(per)} a year${up ? ' up' : ' down'}.</p>
     ${t.sectors ? sectorBars(t) : ''}`;
 }
 
@@ -467,7 +507,7 @@ fetch('data.json').then(r => r.json()).then(data => {
   document.getElementById('today').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   document.getElementById('tracking').textContent = `Tracking ${D.decisions.length} EU decisions since ${dShort(D.since)}`;
   document.getElementById('updated').textContent = `Updated ${dShort(D.updated)} from EUR-Lex & Eurostat`;
-  document.getElementById('nav').innerHTML = `<div class="wrap"><a href="#/">Front page</a>${D.sections.map(s => `<a href="#/section/${s.id}" data-id="${s.id}">${esc(s.name)}</a>`).join('')}</div>`;
+  document.getElementById('nav').innerHTML = `<div class="wrap"><a href="#/">Front page</a><a href="#/goals" data-id="goals">Scorecard</a>${D.sections.map(s => `<a href="#/section/${s.id}" data-id="${s.id}">${esc(s.name)}</a>`).join('')}</div>`;
   window.addEventListener('hashchange', route);
   route();
 }).catch(e => { $app.innerHTML = `<p class="loading">Could not load data.json (${esc(e.message)}). Serve this folder with a local web server.</p>`; });

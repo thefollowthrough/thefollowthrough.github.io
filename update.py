@@ -65,7 +65,7 @@ WHERE {{
   FILTER(
     CONTAINS(SUBSTR(?title, 1, 130), "of the European Parliament and of the Council")
     || STRSTARTS(?title, "Council Regulation (EU)") || STRSTARTS(?title, "Council Directive (EU)")
-    || (STRSTARTS(?title, "Council Decision (CFSP)") && !CONTAINS(SUBSTR(?title, 1, 90), "amending"))
+    || STRSTARTS(?title, "Council Decision (CFSP)")
   )
   FILTER(!CONTAINS(?title, "Corrigendum"))
   OPTIONAL {{ ?w cdm:resource_legal_is_about_concept_directory-code ?dc }}
@@ -106,9 +106,16 @@ def reference(title):
     return f"{m.group(1)} {m.group(2)}" if m else title[:40]
 
 
+def is_update(title):
+    """A foreign-policy decision that changes an earlier one (sanctions lists, mission mandates, aid budgets)."""
+    return "(CFSP)" in title[:40] and bool(re.match(r"amending |updating ", subject_of(title), re.I))
+
+
 def kind_of(title):
     if "European Parliament and of the Council" in title[:130]:
         return "EU law"
+    if is_update(title):
+        return "Foreign policy update"
     if "(CFSP)" in title[:40]:
         return "Foreign policy decision"
     return "Council act"
@@ -126,9 +133,66 @@ def tidy(s, n=105):
 REF = r"(?:Council |Commission )?(?:Implementing |Delegated )?(?:Regulations?|Directives?|Decisions?)(?: \((?:EU|EC|CFSP|EU, Euratom)\))?(?: No)? \d+(?:/\d+)*(?:/(?:EC|EU|EEC|CFSP))?(?:,? (?:and )?(?:\((?:EU|EC)\) )?(?:No )?\d+(?:/\d+)*(?:/(?:EC|EU|EEC))?)*"
 
 
+# who the sanctions regimes are aimed at, in plain words (checked in this order)
+SANCTION_TARGETS = [
+    ("illegal recognition, occupation or annexation", "Russian-occupied areas of Ukraine"),
+    ("annexation of Crimea", "Crimea and Sevastopol"),
+    ("military support to Russia", "Iran over arms for Russia"),
+    ("Belarus", "Belarus"),
+    ("Transnistrian", "Transnistria's leaders"),
+    ("Moldova", "those destabilising Moldova"),
+    ("Russia’s destabilising activities", "Russia's hybrid attacks"),
+    ("Russia's destabilising activities", "Russia's hybrid attacks"),
+    ("situation in Russia", "Russia over human rights"),
+    ("bodies in view of the situation in Ukraine", "former Ukrainian officials over stolen funds"),
+    ("Ukraine", "Russia over the war in Ukraine"),
+    ("human rights violations", "human rights abusers worldwide"),
+    ("cyber-attacks", "cyber-attackers"),
+    ("chemical weapons", "chemical weapons users"),
+    ("ISIL", "ISIL (Da'esh) and Al-Qaeda"),
+    ("Hamas", "Hamas and Palestinian Islamic Jihad"),
+    ("terrorism", "terrorist groups"),
+    ("Türkiye", "Türkiye over drilling off Cyprus"),
+    ("Democratic People", "North Korea"),
+    ("Republic of the Congo", "DR Congo"),
+    ("Myanmar", "Myanmar"),
+    ("Sudan", "Sudan"),
+]
+
+
+def update_headline(s):
+    """Neutral headline for a decision that changes an earlier one: the title says what is changed, not how."""
+    if "restrictive measures" in s or "specific measures to combat terrorism" in s:
+        who = next((w for k, w in SANCTION_TARGETS if k.lower() in s.lower()), None)
+        if not who:
+            rest = s.split("restrictive measures", 1)[-1]
+            rest = rest.rsplit("situation in ", 1)[-1] if "situation in " in rest else re.sub(r"^\s*(?:against|in view of|concerning|directed against) ", "", rest)
+            m = re.match(r"\s*(?:the )?(.*?)(?: and the |,|$)", rest)
+            who = tidy(m.group(1), 50) if m and m.group(1) else "an existing regime"
+        return f"Sanctions update: {who}"
+    if "European Peace Facility" in s:
+        if re.search(r"establishing a European Peace Facility\s*$", s):
+            return "Rules of the European Peace Facility (EU military aid fund) changed"
+        m = re.search(r"(?:to support|support to|for the supply to|capacities of) (?:the )?(.*?)(?: with | in | of military|,|$)", s)
+        return f"Military aid update: {tidy(m.group(1), 70) if m else 'European Peace Facility'}"
+    m = re.search(r"Special Representative for (?:the )?(.*?)(?:,|$)", s)
+    if m:
+        return f"EU envoy update: {tidy(m.group(1), 70)}"
+    if re.search(r"mission|operation", s, re.I):
+        acr = re.findall(r"\((EU[^)]*)\)", s)
+        m = re.search(r"((?:European Union|Union) [^,(]*?(?:[Mm]ission|[Oo]peration)[^,(]*)", s)
+        name = acr[-1] if acr else tidy(re.sub(r"^(?:European )?Union ", "EU ", m.group(1)), 70) if m else "an EU mission"
+        return f"Mission update: {name}"
+    rest = re.sub(r"^(?:amending|updating) (?:Council )?(?:Joint Action|Decision|Common Position)s? (?:\(CFSP\) )?[\d/]+(?:/CFSP)?\s*", "", s)
+    rest = re.sub(r"^(?:on|concerning) (?:a |an |the )?", "", rest)
+    return "Foreign policy update: " + lower1(tidy(rest or s, 80))
+
+
 def headline(title):
     """Readable headline from the official title (used when no AI headline is available)."""
     s = subject_of(title)
+    if is_update(title):
+        return update_headline(s)
     low = s.lower()
     rules = [
         (r"restrictive measures (?:in view of the situation in|in view of|in respect of|against|concerning) (?:the )?(.*?)(?: and the involvement| and |,|$)",
@@ -241,35 +305,96 @@ def eurostat(dataset, **params):
             for i, c in enumerate(codes)}
 
 
-def target_data():
-    gge = eurostat("env_air_gge", geo="EU27_2020", unit="MIO_T", airpol="GHG")
-    net = {y: round(v + gge["CRF1D1A"].get(y, 0), 1) for y, v in gge["TOTXMEMO"].items()}
-    base = net[1990]
-    ren = next(iter(eurostat("nrg_ind_ren", geo="EU27_2020", nrg_bal="REN", unit="PC").values()))
+EU27 = ["BE", "BG", "CZ", "DK", "DE", "EE", "IE", "EL", "ES", "FR", "HR", "IT", "CY", "LV", "LT", "LU",
+        "HU", "MT", "NL", "AT", "PL", "PT", "RO", "SI", "SK", "FI", "SE"]
 
-    def pace(series, start, target, target_year):
-        ys = sorted(series)
-        ly = ys[-1]
-        done = series[ly] - start
-        need = target - start
-        real_rate = (series[ly] - series[ly - 10 if ly - 10 in series else ys[0]]) / min(10, ly - ys[0])
-        need_rate = (target - series[ly]) / (target_year - ly)
-        return {"progress": round(max(0, min(1, done / need)) * 100), "last_year": ly,
-                "real_rate": round(real_rate, 2), "need_rate": round(need_rate, 2)}
 
-    sectors = {name: gge[c] for c, name in (("CRF1A1", "Power plants"), ("CRF1A3", "Transport"), ("CRF1A4", "Buildings"),
-                                             ("CRF2", "Industry"), ("CRF3", "Farming"), ("CRF5", "Waste")) if c in gge}
-    return {
-        "ghg2030": {
-            "unit": "Mt CO₂e", "label": "EU net greenhouse gas emissions", "source": "Eurostat env_air_gge",
-            "series": net, "start": base, "goal": round(base * 0.45, 1), "goal_year": 2030,
-            "later": [{"year": 2040, "value": round(base * 0.10, 1), "label": "−90% (2040)"}, {"year": 2050, "value": 0, "label": "Net zero (2050)"}],
-            "sectors": sectors, **pace(net, base, base * 0.45, 2030)},
-        "ren2030": {
-            "unit": "%", "label": "Share of renewables in EU energy use", "source": "Eurostat nrg_ind_ren",
-            "series": ren, "start": ren[min(ren)], "goal": 42.5, "goal_year": 2030, "later": [],
-            **pace(ren, ren[min(ren)], 42.5, 2030)},
-    }
+def eurostat_cube(dataset, **params):
+    """Raw Eurostat query returning {(code of each dimension...): value}, for multi-dimension needs."""
+    q = urllib.parse.urlencode({**params, "format": "JSON"}, doseq=True)
+    d = http_json(EUROSTAT + dataset + "?" + q)
+    cats = [list(d["dimension"][k]["category"]["index"]) for k in d["id"]]
+    out = {}
+    for k, v in d["value"].items():
+        i, idx = int(k), []
+        for s in reversed(d["size"]):
+            idx.append(i % s)
+            i //= s
+        out[tuple(c[j] for c, j in zip(cats, reversed(idx)))] = v
+    return d["id"], out
+
+
+def organic_share():
+    """Eurostat stopped publishing the EU total after 2020, so we rebuild it from the 27 countries:
+    organic hectares / farmland hectares (farmland = organic ha / organic share). A country missing
+    a year keeps its latest known figures."""
+    ids, cube = eurostat_cube("org_cropar", geo=EU27, crops="UAAXK0000", agprdmet="TOTAL", unit=["HA", "PC_UAA"])
+    gi, ui, ti = ids.index("geo"), ids.index("unit"), ids.index("time")
+    data = {}
+    for key, v in cube.items():
+        data.setdefault(key[gi], {}).setdefault(int(key[ti]), {})[key[ui]] = v
+    years = sorted({y for g in data.values() for y in g})
+    out, last = {}, {}
+    for y in years:
+        for g in EU27:
+            row = data.get(g, {}).get(y, {})
+            if row.get("HA") and row.get("PC_UAA"):
+                last[g] = (row["HA"], row["HA"] * 100 / row["PC_UAA"])
+        fresh = sum(1 for g in EU27 if data.get(g, {}).get(y, {}).get("HA"))
+        if len(last) == 27 and fresh >= 24:   # only years most countries have reported
+            out[y] = round(sum(a for a, _ in last.values()) / sum(b for _, b in last.values()) * 100, 2)
+    return out
+
+
+def pace(series, start, target, target_year):
+    ys = sorted(series)
+    ly = ys[-1]
+    done = series[ly] - start
+    need = target - start
+    first = ly - 10 if ly - 10 in series else min(y for y in ys if y >= ly - 10)
+    real_rate = (series[ly] - series[first]) / max(1, ly - first)
+    need_rate = (target - series[ly]) / max(1, target_year - ly)
+    return {"progress": round(max(0, min(1, done / need)) * 100), "last_year": ly,
+            "real_rate": round(real_rate, 3), "need_rate": round(need_rate, 3)}
+
+
+def target_data(cfg_targets):
+    """Fetch the Eurostat series of every target in config.json and work out progress and pace."""
+    out = {}
+    for t in cfg_targets:
+        spec = t["data"]
+        try:
+            sectors = None
+            if spec.get("calc") == "ghg_net":
+                gge = eurostat("env_air_gge", geo="EU27_2020", unit="MIO_T", airpol="GHG")
+                series = {y: round(v + gge["CRF1D1A"].get(y, 0), 1) for y, v in gge["TOTXMEMO"].items()}
+                sectors = {name: gge[c] for c, name in (("CRF1A1", "Power plants"), ("CRF1A3", "Transport"), ("CRF1A4", "Buildings"),
+                                                         ("CRF2", "Industry"), ("CRF3", "Farming"), ("CRF5", "Waste")) if c in gge}
+                source = "Eurostat env_air_gge"
+            elif spec.get("calc") == "organic":
+                series, source = organic_share(), "Eurostat org_cropar (EU total computed from the 27 countries)"
+            else:
+                series = next(iter(eurostat(spec["dataset"], geo="EU27_2020", **spec["filters"]).values()))
+                source = "Eurostat " + spec["dataset"]
+            scale = spec.get("scale", 1)
+            series = {y: round(v * scale, 3) for y, v in series.items()}
+            start = series[t["start_year"]]
+            if "goal_change" in t:
+                goal = start * (1 + t["goal_change"] / 100)
+            elif "goal_delta" in t:
+                goal = start + t["goal_delta"]
+            else:
+                goal = t["goal"]
+            later = t.get("later", [])
+            if t["id"] == "ghg2030":
+                later = [{"year": 2040, "value": round(start * 0.10, 1), "label": "−90% (2040)"},
+                         {"year": 2050, "value": 0, "label": "Net zero (2050)"}]
+            out[t["id"]] = {"source": source, "series": series, "start": start, "goal": round(goal, 3),
+                            "goal_year": 2030, "later": later, **pace(series, start, goal, 2030),
+                            **({"sectors": sectors} if sectors else {})}
+        except Exception as e:   # one broken dataset must not stop the daily update
+            print(f"  target {t['id']} skipped: {e}")
+    return out
 
 
 # ---------------------------------------------------------------- main
@@ -330,15 +455,20 @@ def main():
                 x["ref"] = reference(x["title"]) if x["title"] else x["id"]
                 x["type"] = "act" if x["id"].startswith("3") else "document"
 
-    # targets each decision feeds into
+    print("Eurostat: targets")
+    tdata = target_data(cfg["targets"])
+    targets = [{**{k: v for k, v in t.items() if k not in ("data", "keywords")}, **tdata[t["id"]]}
+               for t in cfg["targets"] if t["id"] in tdata]
+
+    # targets each decision feeds into: same section + keyword in the title, best match first
     for d in decisions:
         low = subject_of(d["title"]).lower()
-        d["targets"] = [t["id"] for t in cfg["targets"]
-                        if d["section"] == t["section"] and any(k.lower() in low for k in t["keywords"])]
-
-    print("Eurostat: targets")
-    tdata = target_data()
-    targets = [{**t, **tdata[t["id"]]} for t in cfg["targets"]]
+        hits = []
+        for i, t in enumerate(cfg["targets"]):
+            n = sum(1 for k in t["keywords"] if k.lower() in low)
+            if n and d["section"] == t["section"] and t["id"] in tdata:
+                hits.append((-n, i, t["id"]))
+        d["targets"] = [x[2] for x in sorted(hits)]
 
     photos = json.load(open(os.path.join(HERE, "photos.json"))) if os.path.exists(os.path.join(HERE, "photos.json")) else {}
     out = {"site": cfg["site"], "updated": TODAY.isoformat(), "since": start.isoformat(),

@@ -5,6 +5,7 @@
 ## Les pages
 - **La une** (`#/`) : l'article principal, la « Scorecard » des objectifs, les dernières décisions (« Just in »), les grands titres et un bloc par rubrique.
 - **Une rubrique** (`#/section/climate`, etc.) : toutes les décisions des 2 dernières années, de la plus récente à la plus ancienne, avec un filtre par type.
+- **Le tableau des objectifs** (`#/goals`) : les 10 objectifs chiffrés de l'UE pour 2030, et s'ils sont en bonne voie.
 - **Une décision** (`#/decision/<numéro CELEX>`) : le score de progression, puis les boutons *Progress chart*, *Decision map*, *Timeline* et *Official text*.
 
 ## Les fichiers
@@ -36,5 +37,11 @@ ANTHROPIC_API_KEY=sk-... python3 update.py
 Le résultat est mis en cache dans `ai_cache.json` : chaque décision n'est payée qu'une seule fois.
 
 ## Comment le score est calculé
-- **Goal progress** : quand la décision sert un objectif chiffré (pour l'instant : −55 % d'émissions et 42,5 % de renouvelables en 2030), on affiche le chemin parcouru vers cet objectif, d'après Eurostat.
+- **Goal progress** : quand la décision sert un objectif chiffré (10 objectifs pour 2030 : émissions, renouvelables, consommation d'énergie, recyclage, emploi, pauvreté, sécurité routière, spécialistes du numérique, compétences numériques, agriculture bio), on affiche le chemin parcouru vers cet objectif, d'après Eurostat.
 - **Rollout** : sinon, on affiche la part des étapes légales déjà franchies (entrée en vigueur, échéances).
+
+## Ajouter un objectif chiffré
+Tout se passe dans `config.json`, rubrique `targets`. Chaque objectif indique : sa rubrique, son titre, le texte qui l'a fixé (`basis`, et `law` si c'est une loi), le jeu de données Eurostat et ses filtres (`data`), l'année de départ (`start_year`), la cible (`goal`, ou `goal_change` en %, ou `goal_delta` en valeur), l'unité, et les mots-clés qui relient les décisions à cet objectif.
+
+## Les mises à jour de politique étrangère
+Les décisions du Conseil qui modifient une décision existante (listes de sanctions, missions, aides militaires) apparaissent avec le type « Foreign policy update ». Elles ne font jamais la une et sont limitées à 2 dans « Just in », pour que les nouvelles décisions restent visibles.

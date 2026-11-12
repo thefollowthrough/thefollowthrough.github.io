@@ -1,271 +1,536 @@
 {
-  "site": {
-    "name": "The Follow-Through",
-    "tagline": "Europe decided. Did it deliver?",
-    "years_back": 2
-  },
-  "sections": [
-    {
-      "id": "climate",
-      "name": "Climate & Energy",
-      "kicker": "Planet",
-      "codes": [
-        "12",
-        "1510"
-      ],
-      "keywords": [
-        "climate",
-        "emission",
-        "renewable",
-        "energy",
-        "carbon",
-        "greenhouse",
-        "environment",
-        "nature",
-        "water",
-        "waste",
-        "pollution",
-        "packaging"
-      ]
-    },
-    {
-      "id": "economy",
-      "name": "Economy & Money",
-      "kicker": "Money",
-      "codes": [
-        "01",
-        "08",
-        "09",
-        "10",
-        "17"
-      ],
-      "keywords": [
-        "budget",
-        "tax",
-        "bank",
-        "financial",
-        "euro",
-        "capital",
-        "competition",
-        "insolvency",
-        "company law",
-        "payment",
-        "fiscal"
-      ]
-    },
-    {
-      "id": "digital",
-      "name": "Tech & Industry",
-      "kicker": "Tech",
-      "codes": [
-        "13",
-        "16"
-      ],
-      "keywords": [
-        "digital",
-        "artificial intelligence",
-        "data",
-        "cyber",
-        "semiconductor",
-        "industrial",
-        "internal market",
-        "product",
-        "space",
-        "research",
-        "telecom"
-      ]
-    },
-    {
-      "id": "defence",
-      "name": "Security & Defence",
-      "kicker": "Security",
-      "codes": [
-        "18"
-      ],
-      "keywords": [
-        "defence",
-        "military",
-        "security and defence",
-        "restrictive measures",
-        "CFSP",
-        "ammunition",
-        "Ukraine"
-      ]
-    },
-    {
-      "id": "world",
-      "name": "Trade & World",
-      "kicker": "World",
-      "codes": [
-        "02",
-        "11"
-      ],
-      "keywords": [
-        "trade",
-        "tariff",
-        "customs",
-        "agreement between",
-        "third countries",
-        "import",
-        "export",
-        "anti-dumping"
-      ]
-    },
-    {
-      "id": "justice",
-      "name": "Migration & Rights",
-      "kicker": "Rights",
-      "codes": [
-        "19",
-        "20"
-      ],
-      "keywords": [
-        "asylum",
-        "migration",
-        "border",
-        "visa",
-        "criminal",
-        "judicial",
-        "police",
-        "victims",
-        "Schengen",
-        "citizens"
-      ]
-    },
-    {
-      "id": "health",
-      "name": "Health & Consumers",
-      "kicker": "Health",
-      "codes": [
-        "152",
-        "153",
-        "154",
-        "155"
-      ],
-      "keywords": [
-        "health",
-        "medicinal",
-        "medical",
-        "pharmaceutical",
-        "consumer",
-        "food safety",
-        "tobacco",
-        "cosmetic"
-      ]
-    },
-    {
-      "id": "farming",
-      "name": "Food & Farming",
-      "kicker": "Farming",
-      "codes": [
-        "03",
-        "04"
-      ],
-      "keywords": [
-        "agricultur",
-        "farm",
-        "fisheries",
-        "fishing",
-        "plant",
-        "seed",
-        "animal",
-        "forest",
-        "wine"
-      ]
-    },
-    {
-      "id": "transport",
-      "name": "Transport",
-      "kicker": "On the move",
-      "codes": [
-        "07"
-      ],
-      "keywords": [
-        "transport",
-        "vehicle",
-        "aviation",
-        "maritime",
-        "rail",
-        "road",
-        "driving",
-        "airport"
-      ]
-    },
-    {
-      "id": "social",
-      "name": "Jobs & Society",
-      "kicker": "Society",
-      "codes": [
-        "05",
-        "06",
-        "14"
-      ],
-      "keywords": [
-        "worker",
-        "employment",
-        "social",
-        "pay",
-        "education",
-        "regional",
-        "cohesion",
-        "disabilit",
-        "equality",
-        "platform work"
-      ]
-    }
-  ],
-  "priority": [
-    "defence",
+ "site": {
+  "name": "The Follow-Through",
+  "tagline": "Europe decided. Did it deliver?",
+  "years_back": 2
+ },
+ "sections": [
+  {
+   "id": "climate",
+   "name": "Climate & Energy",
+   "kicker": "Planet",
+   "codes": [
+    "12",
+    "1510"
+   ],
+   "keywords": [
     "climate",
-    "health",
+    "emission",
+    "renewable",
+    "energy",
+    "carbon",
+    "greenhouse",
+    "environment",
+    "nature",
+    "water",
+    "waste",
+    "pollution",
+    "packaging"
+   ]
+  },
+  {
+   "id": "economy",
+   "name": "Economy & Money",
+   "kicker": "Money",
+   "codes": [
+    "01",
+    "08",
+    "09",
+    "10",
+    "17"
+   ],
+   "keywords": [
+    "budget",
+    "tax",
+    "bank",
+    "financial",
+    "euro",
+    "capital",
+    "competition",
+    "insolvency",
+    "company law",
+    "payment",
+    "fiscal"
+   ]
+  },
+  {
+   "id": "digital",
+   "name": "Tech & Industry",
+   "kicker": "Tech",
+   "codes": [
+    "13",
+    "16"
+   ],
+   "keywords": [
     "digital",
-    "justice",
+    "artificial intelligence",
+    "data",
+    "cyber",
+    "semiconductor",
+    "industrial",
+    "internal market",
+    "product",
+    "space",
+    "research",
+    "telecom"
+   ]
+  },
+  {
+   "id": "defence",
+   "name": "Security & Defence",
+   "kicker": "Security",
+   "codes": [
+    "18"
+   ],
+   "keywords": [
+    "defence",
+    "military",
+    "security and defence",
+    "restrictive measures",
+    "CFSP",
+    "ammunition",
+    "Ukraine"
+   ]
+  },
+  {
+   "id": "world",
+   "name": "Trade & World",
+   "kicker": "World",
+   "codes": [
+    "02",
+    "11"
+   ],
+   "keywords": [
+    "trade",
+    "tariff",
+    "customs",
+    "agreement between",
+    "third countries",
+    "import",
+    "export",
+    "anti-dumping"
+   ]
+  },
+  {
+   "id": "justice",
+   "name": "Migration & Rights",
+   "kicker": "Rights",
+   "codes": [
+    "19",
+    "20"
+   ],
+   "keywords": [
+    "asylum",
+    "migration",
+    "border",
+    "visa",
+    "criminal",
+    "judicial",
+    "police",
+    "victims",
+    "Schengen",
+    "citizens"
+   ]
+  },
+  {
+   "id": "health",
+   "name": "Health & Consumers",
+   "kicker": "Health",
+   "codes": [
+    "152",
+    "153",
+    "154",
+    "155"
+   ],
+   "keywords": [
+    "health",
+    "medicinal",
+    "medical",
+    "pharmaceutical",
+    "consumer",
+    "food safety",
+    "tobacco",
+    "cosmetic"
+   ]
+  },
+  {
+   "id": "farming",
+   "name": "Food & Farming",
+   "kicker": "Farming",
+   "codes": [
+    "03",
+    "04"
+   ],
+   "keywords": [
+    "agricultur",
+    "farm",
+    "fisheries",
+    "fishing",
+    "plant",
+    "seed",
+    "animal",
+    "forest",
+    "wine"
+   ]
+  },
+  {
+   "id": "transport",
+   "name": "Transport",
+   "kicker": "On the move",
+   "codes": [
+    "07"
+   ],
+   "keywords": [
     "transport",
-    "farming",
-    "world",
+    "vehicle",
+    "aviation",
+    "maritime",
+    "rail",
+    "road",
+    "driving",
+    "airport"
+   ]
+  },
+  {
+   "id": "social",
+   "name": "Jobs & Society",
+   "kicker": "Society",
+   "codes": [
+    "05",
+    "06",
+    "14"
+   ],
+   "keywords": [
+    "worker",
+    "employment",
     "social",
-    "economy"
-  ],
-  "targets": [
-    {
-      "id": "ghg2030",
-      "section": "climate",
-      "title": "Cut net greenhouse gas emissions by 55% by 2030",
-      "short": "Emissions −55% by 2030",
-      "law": "32021R1119",
-      "keywords": [
-        "climate",
-        "emission",
-        "greenhouse",
-        "carbon",
-        "CO2",
-        "renewable",
-        "energy efficiency",
-        "energy performance",
-        "fuel",
-        "methane",
-        "fluorinated",
-        "market stability reserve",
-        "allowance",
-        "ETS",
-        "2040"
-      ]
-    },
-    {
-      "id": "ren2030",
-      "section": "climate",
-      "title": "Get 42.5% of Europe's energy from renewables by 2030",
-      "short": "42.5% renewables by 2030",
-      "law": "32023L2413",
-      "keywords": [
-        "renewable",
-        "energy",
-        "electricity",
-        "hydrogen",
-        "grid",
-        "solar",
-        "wind"
-      ]
+    "pay",
+    "education",
+    "regional",
+    "cohesion",
+    "disabilit",
+    "equality",
+    "platform work"
+   ]
+  }
+ ],
+ "priority": [
+  "defence",
+  "climate",
+  "health",
+  "digital",
+  "justice",
+  "transport",
+  "farming",
+  "world",
+  "social",
+  "economy"
+ ],
+ "targets": [
+  {
+   "id": "ghg2030",
+   "section": "climate",
+   "title": "Cut net greenhouse gas emissions by 55% by 2030",
+   "short": "Emissions −55% by 2030",
+   "law": "32021R1119",
+   "basis": "European Climate Law, Regulation (EU) 2021/1119",
+   "unit": "Mt CO₂e",
+   "decimals": 0,
+   "start_year": 1990,
+   "goal_change": -55,
+   "display": "change",
+   "data": {
+    "calc": "ghg_net"
+   },
+   "keywords": [
+    "climate",
+    "emission",
+    "greenhouse",
+    "carbon",
+    "CO2",
+    "fuel",
+    "methane",
+    "fluorinated",
+    "market stability reserve",
+    "allowance",
+    "ETS",
+    "2040"
+   ],
+   "label": "EU net greenhouse gas emissions"
+  },
+  {
+   "id": "ren2030",
+   "section": "climate",
+   "title": "Get 42.5% of Europe's energy from renewables by 2030",
+   "short": "42.5% renewables by 2030",
+   "law": "32023L2413",
+   "basis": "Renewable Energy Directive, (EU) 2023/2413",
+   "unit": "%",
+   "decimals": 1,
+   "start_year": 2005,
+   "goal": 42.5,
+   "data": {
+    "dataset": "nrg_ind_ren",
+    "filters": {
+     "nrg_bal": "REN",
+     "unit": "PC"
     }
-  ]
+   },
+   "keywords": [
+    "renewable",
+    "energy",
+    "electricity",
+    "hydrogen",
+    "grid",
+    "solar",
+    "wind"
+   ],
+   "label": "Share of renewables in EU energy use"
+  },
+  {
+   "id": "emp2030",
+   "section": "social",
+   "title": "Get 78% of 20–64-year-olds into work by 2030",
+   "short": "78% in work by 2030",
+   "law": null,
+   "basis": "European Pillar of Social Rights Action Plan (2021), endorsed by EU leaders at the Porto Social Summit",
+   "label": "Employment rate, people aged 20–64",
+   "unit": "%",
+   "decimals": 1,
+   "start_year": 2019,
+   "goal": 78,
+   "data": {
+    "dataset": "lfsi_emp_a",
+    "filters": {
+     "indic_em": "EMP_LFS",
+     "sex": "T",
+     "age": "Y20-64",
+     "unit": "PC_POP"
+    }
+   },
+   "keywords": [
+    "employment",
+    "jobs",
+    "labour market",
+    "unemploy",
+    "Globalisation Adjustment Fund",
+    "traineeship",
+    "pay transparency",
+    "platform work"
+   ]
+  },
+  {
+   "id": "road2030",
+   "section": "transport",
+   "title": "Halve the number of people killed on EU roads by 2030",
+   "short": "Road deaths halved by 2030",
+   "law": null,
+   "basis": "EU Road Safety Policy Framework 2021–2030, based on the Valletta Declaration endorsed by EU transport ministers (2017)",
+   "label": "People killed in road crashes in the EU",
+   "unit": "deaths",
+   "decimals": 0,
+   "start_year": 2019,
+   "goal_change": -50,
+   "data": {
+    "dataset": "sdg_11_40",
+    "filters": {
+     "unit": "NR",
+     "tra_infr": "TOTAL"
+    }
+   },
+   "keywords": [
+    "driving licen",
+    "disqualification",
+    "road safety",
+    "road-safety",
+    "roadworthiness",
+    "general safety",
+    "speed limit",
+    "alcohol interlock"
+   ]
+  },
+  {
+   "id": "ict2030",
+   "section": "digital",
+   "title": "Have 20 million ICT specialists at work in the EU by 2030",
+   "short": "20 million tech experts by 2030",
+   "law": "32022D2481",
+   "basis": "Digital Decade Policy Programme 2030, Decision (EU) 2022/2481",
+   "label": "ICT specialists in employment in the EU",
+   "unit": "million people",
+   "decimals": 1,
+   "start_year": 2021,
+   "goal": 20,
+   "data": {
+    "dataset": "isoc_sks_itspt",
+    "filters": {
+     "unit": "THS_PER"
+    },
+    "scale": 0.001
+   },
+   "keywords": [
+    "ICT",
+    "skills",
+    "artificial intelligence",
+    "chips",
+    "semiconductor",
+    "High Performance Computing",
+    "quantum"
+   ]
+  },
+  {
+   "id": "eff2030",
+   "section": "climate",
+   "title": "Cut Europe's final energy use to 763 Mtoe by 2030",
+   "short": "Energy use under 763 Mtoe by 2030",
+   "law": "32023L1791",
+   "basis": "Energy Efficiency Directive, (EU) 2023/1791",
+   "label": "Final energy consumption in the EU",
+   "unit": "Mtoe",
+   "decimals": 0,
+   "start_year": 2005,
+   "goal": 763,
+   "data": {
+    "dataset": "nrg_ind_eff",
+    "filters": {
+     "nrg_bal": "FEC_EED",
+     "unit": "MTOE"
+    }
+   },
+   "keywords": [
+    "energy efficiency",
+    "energy performance",
+    "ecodesign",
+    "energy label",
+    "heating",
+    "cooling",
+    "buildings"
+   ]
+  },
+  {
+   "id": "recycle2030",
+   "section": "climate",
+   "title": "Recycle 60% of household waste by 2030",
+   "short": "60% of waste recycled by 2030",
+   "law": "32018L0851",
+   "basis": "Waste Framework Directive, as amended by Directive (EU) 2018/851",
+   "label": "Recycling rate of municipal waste in the EU",
+   "unit": "%",
+   "decimals": 1,
+   "start_year": 2018,
+   "goal": 60,
+   "later": [
+    {
+     "year": 2035,
+     "value": 65,
+     "label": "65% (2035)"
+    }
+   ],
+   "data": {
+    "dataset": "cei_wm011",
+    "filters": {}
+   },
+   "keywords": [
+    "on waste",
+    "municipal waste",
+    "waste shipment",
+    "packaging",
+    "recycl",
+    "plastic",
+    "landfill",
+    "circular",
+    "textile waste",
+    "end-of-life"
+   ]
+  },
+  {
+   "id": "skills2030",
+   "section": "digital",
+   "title": "Give 80% of adults at least basic digital skills by 2030",
+   "short": "80% digitally skilled by 2030",
+   "law": "32022D2481",
+   "basis": "Digital Decade Policy Programme 2030, Decision (EU) 2022/2481",
+   "label": "Adults (16–74) with at least basic digital skills",
+   "unit": "%",
+   "decimals": 1,
+   "start_year": 2021,
+   "goal": 80,
+   "data": {
+    "dataset": "isoc_sk_dskl_i21",
+    "filters": {
+     "indic_is": "I_DSK2_BAB",
+     "ind_type": "IND_TOTAL",
+     "unit": "PC_IND"
+    }
+   },
+   "keywords": [
+    "digital skills",
+    "digital education",
+    "online",
+    "internet",
+    "accessibility",
+    "digital identity",
+    "European Digital Identity"
+   ]
+  },
+  {
+   "id": "pov2030",
+   "section": "social",
+   "title": "Lift 15 million people out of poverty or social exclusion by 2030",
+   "short": "15 million fewer at risk of poverty",
+   "law": null,
+   "basis": "European Pillar of Social Rights Action Plan (2021), endorsed by EU leaders at the Porto Social Summit",
+   "label": "People at risk of poverty or social exclusion in the EU",
+   "unit": "million people",
+   "decimals": 1,
+   "start_year": 2019,
+   "goal_delta": -15,
+   "data": {
+    "dataset": "ilc_peps01n",
+    "filters": {
+     "age": "TOTAL",
+     "sex": "T",
+     "unit": "THS_PER"
+    },
+    "scale": 0.001
+   },
+   "keywords": [
+    "poverty",
+    "social inclusion",
+    "child guarantee",
+    "minimum income",
+    "homeless",
+    "European Social Fund",
+    "most deprived",
+    "food aid"
+   ]
+  },
+  {
+   "id": "organic2030",
+   "section": "farming",
+   "title": "Farm 25% of EU farmland organically by 2030",
+   "short": "25% organic farmland by 2030",
+   "law": null,
+   "basis": "Farm to Fork Strategy (2020) and the EU action plan for organic production (2021)",
+   "label": "Share of farmland under organic farming (EU, computed from national data)",
+   "unit": "%",
+   "decimals": 1,
+   "start_year": 2020,
+   "goal": 25,
+   "data": {
+    "calc": "organic"
+   },
+   "keywords": [
+    "organic",
+    "agricultur",
+    "farm",
+    "pesticide",
+    "plant protection",
+    "fertilis",
+    "soil",
+    "rural",
+    "Common Agricultural Policy"
+   ]
+  }
+ ]
 }
