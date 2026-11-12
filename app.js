@@ -145,7 +145,7 @@ function renderFront() {
   const used = new Set([lead, ...top, ...more].map(d => d.id));
   // newest first, but at most 2 routine updates so new decisions stay visible
   let nUpd = 0;
-  const latest = D.decisions.filter(d => d.kind !== 'Foreign policy update' || ++nUpd <= 2).slice(0, 7);
+  const latest = D.decisions.filter(d => d.kind !== 'Foreign policy update' || ++nUpd <= 3).slice(0, 16);
   // A different hemicycle photo each day (changes at midnight UTC, same for every visitor)
   const heads = D.photos.masthead;
   const leadPhoto = heads[Math.floor(Date.now() / 86400000) % heads.length]; usedPhotos.set(leadPhoto.url, leadPhoto);
@@ -159,12 +159,14 @@ function renderFront() {
       <a href="#/decision/${encodeURIComponent(lead.id)}"><h1 class="hl">${esc(lead.headline)}</h1></a>
       <p class="dek">${esc(dek(lead))}</p>
       <div class="meta">${pill(lead)}<span>Adopted ${dLong(lead.date)}</span><span>${esc(lead.ref)}</span></div>
+      <div class="lead-goals">
+        <h3>The Scorecard</h3>
+        <div class="lead-goals-grid">${D.targets.slice(0, 4).map(t => scoreCard(t, true)).join('')}</div>
+        ${D.targets.length > 4 ? `<a class="more-goals" href="#/goals">All ${D.targets.length} goals we track →</a>` : ''}
+      </div>
     </article>
     <aside class="rail">
-      <h3>The Scorecard</h3>
-      ${D.targets.slice(0, 4).map(t => scoreCard(t, true)).join('')}
-      ${D.targets.length > 4 ? `<a class="more-goals" href="#/goals">All ${D.targets.length} goals we track →</a>` : ''}
-      <h3 style="margin-top:6px">Just in</h3>
+      <h3>Just in</h3>
       <ul class="plain justin">${latest.map(d => `<li>
         <span class="kicker">${esc(SEC[d.section].kicker)}${isNew(d) ? '<span class="tag new">New</span>' : ''}</span>
         <a href="#/decision/${encodeURIComponent(d.id)}"><div class="hl">${esc(d.headline)}</div></a>
@@ -208,7 +210,19 @@ function renderFront() {
   });
   html += `</section>`;
   $app.innerHTML = html;
+  fitJustIn();
 }
+
+// "Just in" shows as many headlines as fit beside the lead story (7 on narrow screens, where the columns stack)
+function fitJustIn() {
+  const lead = document.querySelector('.lead-story'), items = [...document.querySelectorAll('.justin li')];
+  if (!lead || !items.length) return;
+  items.forEach(li => li.hidden = false);
+  if (innerWidth <= 960) { items.forEach((li, i) => li.hidden = i >= 7); return; }
+  const limit = Math.max(...[...lead.children].map(c => c.getBoundingClientRect().bottom));
+  for (let i = items.length - 1; i >= 5 && items[i].getBoundingClientRect().bottom > limit; i--) items[i].hidden = true;
+}
+window.addEventListener('resize', () => { clearTimeout(fitJustIn.t); fitJustIn.t = setTimeout(fitJustIn, 150); });
 
 // ---------------------------------------------------------------- goals page (#/goals)
 function renderGoals() {
