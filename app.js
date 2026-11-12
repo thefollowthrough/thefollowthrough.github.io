@@ -130,7 +130,9 @@ function renderFront() {
   const lead = ranked[0], top = ranked.slice(1, 4), more = ranked.slice(4, 12);
   const used = new Set([lead, ...top, ...more].map(d => d.id));
   const latest = D.decisions.slice(0, 7);
-  const leadPhoto = D.photos.masthead[0]; usedPhotos.set(leadPhoto.url, leadPhoto);
+  // A different hemicycle photo each day (changes at midnight UTC, same for every visitor)
+  const heads = D.photos.masthead;
+  const leadPhoto = heads[Math.floor(Date.now() / 86400000) % heads.length]; usedPhotos.set(leadPhoto.url, leadPhoto);
 
   let html = `
   <section class="lead">

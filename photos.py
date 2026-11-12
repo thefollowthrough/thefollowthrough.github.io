@@ -52,7 +52,8 @@ def main():
     out = json.load(open(path)) if os.path.exists(path) else {}
     only = sys.argv[1:]
     for key, queries in QUERIES.items():
-        if only and key not in only:
+        # The front-page hemicycle photos (masthead) were hand-picked: only re-search them if asked by name.
+        if (only and key not in only) or (not only and key == "masthead"):
             out[key] = [x for x in out.get(key, []) if not any(b in x["title"] for b in BLOCK)]
             continue
         picks = []
