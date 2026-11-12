@@ -68,7 +68,7 @@ function score(d) {
   const verdict = pct >= 100 ? 'Fully in effect' : pct >= 50 ? 'Rolling out' : 'Just starting';
   return { pct, kind: 'rollout', label: 'Rollout', cls: pct >= 100 ? 'good' : '', verdict,
     why: next ? `${passed} of ${ms.length} legal milestones reached. Next: ${next.what.toLowerCase()} on ${dLong(next.date)}.`
-              : `All ${ms.length} legal milestones have been reached.` };
+              : ms.length === 1 ? 'Its only legal milestone has been reached.' : `All ${ms.length} legal milestones have been reached.` };
 }
 
 const pill = d => { const s = score(d); return `<span class="pill ${s.cls}"><i></i>${s.label}: ${s.pct}%</span>`; };
@@ -108,9 +108,31 @@ function weight(d) {
   return w;
 }
 
+// The lead story changes every day. It rotates between Security & Defence, Migration and Trade
+// (the sections readers care most about), picking among each one's strongest recent decisions
+// that have a proper front-page headline (lead_hl, written by update.py).
+const DAY = Math.floor(Date.now() / 864e5);
+function pickLead(ranked) {
+  const order = ['defence', 'justice', 'world'];
+  const fresh = d => d.lead_hl && d.kind !== 'Foreign policy update' && daysAgo(d.date) <= 150;
+  for (let i = 0; i < order.length; i++) {
+    const sec = order[(DAY + i) % order.length];
+    const pool = ranked.filter(d => d.section === sec && fresh(d)).slice(0, 4);
+    if (pool.length) return pool[Math.floor(DAY / order.length) % pool.length];
+  }
+  return ranked[0];
+}
+
+// The hemicycle photo of the day, behind the title and the menu
+function heroPhoto() {
+  const heads = D.photos.masthead || [];
+  return heads.length ? heads[DAY % heads.length] : null;
+}
+
 // ---------------------------------------------------------------- router
 function route() {
   usedPhotos.clear();
+  const hp = heroPhoto(); if (hp) usedPhotos.set(hp.url, hp);
   const h = location.hash.replace(/^#\/?/, '').split('/');
   document.querySelectorAll('nav.sections a').forEach(a => a.classList.toggle('on', (h[0] === 'section' && a.dataset.id === h[1]) || (h[0] === 'goals' && a.dataset.id === 'goals')));
   if (h[0] === 'section' && SEC[h[1]]) renderSection(SEC[h[1]]);
@@ -151,24 +173,29 @@ function scoreCard(t, compact) {
 function renderFront() {
   document.title = `${D.site.name}: ${D.site.tagline}`;
   const ranked = [...D.decisions].sort((a, b) => weight(b) - weight(a));
-  const lead = ranked[0], top = ranked.slice(1, 4), more = ranked.slice(4, 12);
+  const lead = pickLead(ranked);
+  const rest = ranked.filter(d => d !== lead), top = rest.slice(0, 3), more = rest.slice(3, 11);
   const used = new Set([lead, ...top, ...more].map(d => d.id));
   // newest first, but at most 2 routine updates so new decisions stay visible
   let nUpd = 0;
   const latest = D.decisions.filter(d => d.kind !== 'Foreign policy update' || ++nUpd <= 3).slice(0, 16);
-  // A different hemicycle photo each day (changes at midnight UTC, same for every visitor)
-  const heads = D.photos.masthead;
-  const leadPhoto = heads[Math.floor(Date.now() / 86400000) % heads.length]; usedPhotos.set(leadPhoto.url, leadPhoto);
+  const leadPhoto = photoFor(lead);
 
   let html = `
   <section class="lead">
     <article class="lead-story">
-      <a href="#/decision/${encodeURIComponent(lead.id)}">${img(leadPhoto, "European Parliament plenary").replace(" loading=\"lazy\"", "")}</a>
-      ${credit(leadPhoto)}
-      <div style="margin-top:14px"><span class="kicker">${esc(SEC[lead.section].name)}<span class="k2">${esc(lead.kind)}</span></span></div>
-      <a href="#/decision/${encodeURIComponent(lead.id)}"><h1 class="hl">${esc(lead.headline)}</h1></a>
-      <p class="dek">${esc(dek(lead))}</p>
-      <div class="meta">${pill(lead)}<span>Adopted ${dLong(lead.date)}</span><span>${esc(lead.ref)}</span></div>
+      <div class="lead-split">
+        <div>
+          <span class="kicker">${esc(SEC[lead.section].name)}<span class="k2">${esc(lead.kind)}</span></span>
+          <a href="#/decision/${encodeURIComponent(lead.id)}"><h1 class="hl">${esc(lead.lead_hl || lead.headline)}</h1></a>
+          <p class="dek">${esc(lead.lead_dek || dek(lead))}</p>
+          <div class="meta">${pill(lead)}<span>Adopted ${dLong(lead.date)}</span><span>${esc(lead.ref)}</span></div>
+        </div>
+        <div>
+          <a href="#/decision/${encodeURIComponent(lead.id)}">${img(leadPhoto, lead.lead_hl || lead.headline).replace(' loading="lazy"', '')}</a>
+          ${credit(leadPhoto)}
+        </div>
+      </div>
       <div class="lead-goals">
         <h3>The Scorecard</h3>
         <div class="lead-goals-grid">${D.targets.slice(0, 4).map(t => scoreCard(t, true)).join('')}</div>
@@ -232,6 +259,14 @@ function fitJustIn() {
   const limit = Math.max(...[...lead.children].map(c => c.getBoundingClientRect().bottom));
   for (let i = items.length - 1; i >= 5 && items[i].getBoundingClientRect().bottom > limit; i--) items[i].hidden = true;
 }
+// "Share": the phone's share sheet when there is one, else copy the link (the page it points to has its own preview image)
+document.addEventListener('click', e => {
+  const a = e.target.closest('a.share'); if (!a) return;
+  e.preventDefault();
+  const url = new URL(a.getAttribute('href'), location.href).href;
+  if (navigator.share) navigator.share({ title: a.dataset.share, url }).catch(() => {});
+  else navigator.clipboard.writeText(url).then(() => { a.textContent = 'Link copied ✓'; setTimeout(() => a.textContent = 'Share ↗', 2000); }, () => window.open(url, '_blank'));
+});
 window.addEventListener('resize', () => { clearTimeout(fitJustIn.t); fitJustIn.t = setTimeout(fitJustIn, 150); });
 
 // ---------------------------------------------------------------- goals page (#/goals)
@@ -321,7 +356,7 @@ function renderDecision(d) {
       <span class="kicker">${esc(s.name)}<span class="k2">${esc(d.kind)} · ${esc(d.ref)}</span>${isNew(d) ? '<span class="tag new">New</span>' : ''}</span>
       <h1 class="hl">${esc(d.headline)}</h1>
       <p class="dek">${esc(dek(d))}</p>
-      <div class="meta"><span>Adopted ${dLong(d.date)}</span><span>·</span><span>Tracked by ${esc(D.site.name)}</span></div>
+      <div class="meta"><span>Adopted ${dLong(d.date)}</span><span>·</span><span>Tracked by ${esc(D.site.name)}</span><span>·</span><a class="share" href="decision/${encodeURIComponent(d.id)}.html" data-share="${esc(d.headline)}">Share ↗</a></div>
       <figure>${img(p, s.name)}${credit(p)}</figure>
       <div class="official"><b>Official title</b>${esc(d.title)}</div>
     </article>
@@ -528,6 +563,11 @@ fetch('data.json').then(r => r.json()).then(data => {
   SEC = Object.fromEntries(D.sections.map(s => [s.id, s]));
   TGT = Object.fromEntries(D.targets.map(t => [t.id, t]));
   document.getElementById('tagline').textContent = D.site.tagline;
+  const hp = heroPhoto();
+  if (hp) {
+    document.getElementById('hero').style.backgroundImage = `url("${hp.url}")`;
+    document.getElementById('hero-credit').innerHTML = `Photo: ${esc(hp.author)} / <a href="${esc(hp.source)}" target="_blank" rel="noopener">${esc(hp.licence)}</a>`;
+  }
   document.getElementById('today').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   document.getElementById('tracking').textContent = `Tracking ${D.decisions.length} EU decisions since ${dShort(D.since)}`;
   document.getElementById('updated').textContent = `Updated ${dShort(D.updated)} from EUR-Lex & Eurostat`;

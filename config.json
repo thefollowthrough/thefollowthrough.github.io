@@ -2,7 +2,8 @@
  "site": {
   "name": "The Follow-Through",
   "tagline": "Europe decided. Did it deliver?",
-  "years_back": 2
+  "years_back": 2,
+  "url": "https://thefollowthrough.github.io"
  },
  "sections": [
   {

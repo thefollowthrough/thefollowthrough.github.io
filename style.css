@@ -18,6 +18,17 @@ img { display: block; width: 100%; object-fit: cover; background: #e8e3d8; }
 .topbar { border-bottom: 1px solid var(--rule); font: 500 12px/1 var(--sans); color: var(--muted); letter-spacing: .02em; }
 .topbar .wrap { display: flex; justify-content: space-between; gap: 16px; padding-top: 10px; padding-bottom: 10px; }
 .masthead { text-align: center; padding: 26px 0 14px; }
+/* banner: the hemicycle photo of the day runs behind the title and the section menu, both on paper bands */
+.hero { position: relative; background: #2a2a2a center 45% / cover no-repeat; padding: 26px 0 22px; border-bottom: 1px solid var(--rule-strong); }
+.hero .plate { background: rgba(250, 248, 243, .93); border-top: 3px double var(--ink); border-bottom: 3px double var(--ink); }
+.hero .title-plate { width: fit-content; max-width: calc(100% - 32px); margin: 0 auto; padding: 12px 46px 10px; text-align: center; }
+.hero .tagline { margin-top: 6px; }
+.hero .nav-plate { margin-top: 22px; }
+.hero .nav-plate nav.sections { border: 0; background: transparent; position: static; }
+.hero .seal { position: absolute; left: max(16px, calc((100% - 1240px) / 2 + 24px)); top: 12px; width: 104px; z-index: 2; }
+.hero .seal img { background: none; width: 100%; height: auto; }
+.hero-credit { position: absolute; max-width: calc(100% - 20px); right: 10px; bottom: 3px; font: 400 10.5px/1 var(--sans); color: #f1efe8; text-shadow: 0 0 3px #000; }
+.hero-credit a { text-decoration: underline; }
 .brand { font: 900 clamp(40px, 7vw, 82px)/1 var(--serif-d); letter-spacing: -.015em; display: inline-block; }
 .brand.small { font-size: 26px; margin-bottom: 8px; }
 .tagline { font: italic 400 18px/1.3 var(--serif); color: var(--ink2); margin-top: 8px; }
@@ -53,8 +64,9 @@ main { padding-top: 26px; padding-bottom: 60px; min-height: 60vh; }
 
 /* ---------- front page ---------- */
 .lead { display: grid; grid-template-columns: 2.05fr 1fr; gap: 34px; }
-.lead-story img { aspect-ratio: 16/9; }
-.lead-story .hl { font-size: clamp(32px, 4.2vw, 52px); margin-top: 14px; }
+.lead-story img { aspect-ratio: 4/3; }
+.lead-split { display: grid; grid-template-columns: 1fr 1.25fr; gap: 26px; align-items: start; }
+.lead-story .hl { font-size: clamp(32px, 3.5vw, 48px); margin: 10px 0 14px; }
 .lead-story .dek { font-size: 19.5px; }
 .rail { border-left: 1px solid var(--rule); padding-left: 28px; }
 .lead-goals { margin-top: 34px; }
@@ -177,8 +189,18 @@ ul.plain { list-style: none; margin: 0; padding: 0; }
 .credits { list-style: none; padding: 0; margin: 0; font: 400 11.5px/1.45 var(--sans); color: var(--muted); }
 .credits a { text-decoration: underline; }
 
+@media (max-width: 1180px) {
+  .hero .seal { width: 84px; top: 10px; }
+  .hero .title-plate { padding: 10px 30px 8px; }
+}
 @media (max-width: 960px) {
-  .lead, .article, .band, .foot-grid { grid-template-columns: 1fr; }
+  .hero { padding: 18px 0 14px; }
+  .hero .seal { width: 64px; top: 8px; left: 10px; }
+  .hero .title-plate { padding: 8px 18px 6px; margin-left: 84px; margin-right: 12px; }
+  .hero .nav-plate { margin-top: 14px; }
+  .hero-credit { left: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 9.5px; }
+  .hero { padding-bottom: 18px; }
+  .lead, .lead-split, .article, .band, .foot-grid { grid-template-columns: 1fr; }
   .rail { border-left: 0; padding-left: 0; }
   .lead-goals-grid { grid-template-columns: 1fr; }
   .top3, .related { grid-template-columns: 1fr 1fr; }
@@ -198,3 +220,6 @@ ul.plain { list-style: none; margin: 0; padding: 0; }
   nav.sections a { white-space: nowrap; }
   .brand { font-size: 40px; }
 }
+
+.meta a.share { color: var(--eu); font-weight: 700; }
+.meta a.share:hover { text-decoration: underline; }

@@ -268,6 +268,131 @@ def classify(title, codes, cfg):
     return ordered[0], ordered
 
 
+# ---------------------------------------------------------------- front-page headlines (no AI)
+# The lead story of the day (Security & Defence, Migration, Trade) gets a proper newspaper headline
+# and a short explanation. These templates only state what the official title says, plus short,
+# stable background facts about some countries.
+CONTEXT = {
+    "Mauritania": "Mauritania borders Mali, where armed jihadist groups are active.",
+    "Nigeria": "Nigeria is fighting armed jihadist groups in its north-east.",
+    "Togo": "Jihadist violence from the Sahel has been spreading towards coastal West Africa.",
+    "Togolese": "Jihadist violence from the Sahel has been spreading towards coastal West Africa.",
+    "Benin": "Jihadist violence from the Sahel has been spreading towards coastal West Africa.",
+    "Beninese": "Jihadist violence from the Sahel has been spreading towards coastal West Africa.",
+    "Ivoire": "Jihadist violence from the Sahel has been spreading towards coastal West Africa.",
+    "Moldova": "Moldova, an EU candidate country, borders Ukraine.",
+    "Lebanon": "Lebanon borders Israel and Syria.",
+    "Lebanese": "Lebanon borders Israel and Syria.",
+    "Libya": "Libya has been split between rival governments for over a decade.",
+    "Belarus": "Belarus let Russia use its territory to invade Ukraine in 2022.",
+    "Congo": "Eastern Congo has seen heavy fighting involving the M23 armed group.",
+}
+LEAD_FIXED = [  # (pattern in the official subject, headline, explanation)
+    (r"agile and rapid defence innovation", "EU launches AGILE to fast-track new defence technology",
+     "A new EU programme is meant to get innovative defence products from the lab to the armed forces faster."),
+    (r"Defence readiness and facilitating defence investments", "EU cuts red tape to speed up defence investment",
+     "Parliament and governments changed several EU rules at once so that money can flow to defence projects more quickly."),
+    (r"permit-granting processes for defence readiness", "EU fast-tracks permits for defence projects",
+     "A new law shortens the paperwork for building factories, depots and other defence projects."),
+    (r"intra-EU transfers of defence-related products", "EU makes it easier to move military equipment between its countries",
+     "Simpler rules for sending defence products from one EU country to another."),
+    (r"Security Action for Europe", "EU creates SAFE: €150 billion in loans to rearm Europe",
+     "The EU will borrow on the markets and lend to member states that buy defence equipment together."),
+    (r"European Defence Industry Programme", "EU launches a programme to boost Europe's arms industry",
+     "Money and rules meant to help European companies produce more weapons and ammunition, faster."),
+    (r"Ukraine Support Loan", "EU agrees a new support loan for Ukraine",
+     "A group of EU countries set up a loan to keep Ukraine's state running and defended."),
+    (r"Ukraine Facility", "EU changes the rules of its Ukraine aid fund",
+     "Changes to the Ukraine Facility, the EU fund that pays for Ukraine's recovery and reforms."),
+    (r"Space Threat Response Architecture", "EU sets up a system to respond to threats in space",
+     "A framework for how the EU reacts when its satellites or space services are threatened."),
+    (r"return of third-country nationals", "EU agrees one system to send back people with no right to stay",
+     "A new EU law replaces 27 different national approaches with common rules for returning non-EU citizens who are staying illegally."),
+    (r"safe countries of origin", "EU agrees a common list of 'safe countries' for asylum claims",
+     "Asylum requests from people coming from countries on the list can be handled faster."),
+    (r"safe third country", "EU rewrites the 'safe third country' rule for asylum",
+     "The rule decides when an asylum seeker can be sent to another country outside the EU to have their claim examined."),
+    (r"Talent Pool", "EU creates a Talent Pool to recruit workers from outside Europe",
+     "An EU-wide platform to match employers with job seekers from non-EU countries."),
+    (r"combatting corruption", "EU agrees common rules to fight corruption",
+     "The same definitions and minimum penalties for corruption offences across the EU."),
+    (r"suspension mechanism", "EU makes it easier to suspend visa-free travel",
+     "New grounds for suspending visa-free travel for countries whose citizens can visit the EU without a visa."),
+    (r"advance passenger information", "Airlines will have to share passenger data with border authorities",
+     "Passenger details collected before flights will be sent to border and police authorities."),
+    (r"victims of crime", "EU strengthens the rights of victims of crime",
+     "Updated minimum standards for the support and protection of crime victims."),
+    (r"Europol", "EU gives Europol a bigger role against migrant smuggling",
+     "More support from the EU police agency for national police forces."),
+    (r"identity cards", "EU tightens the security of ID cards",
+     "Common security standards for national identity cards and residence documents."),
+    (r"transfer of proceedings in criminal matters", "EU countries will be able to hand criminal cases to each other",
+     "Rules for moving a prosecution to the EU country best placed to handle it."),
+    (r"Customs Authority", "EU creates its own customs authority to police imports",
+     "A single EU customs authority and a shared data hub will oversee the goods entering Europe, from container ships to small online parcels."),
+    (r"overcapacity on the Union steel market", "EU shields its steel industry from cheap imports",
+     "New limits on steel imports, as global overproduction pushes cheap steel onto the European market."),
+    (r"safeguard clauses of the EU-Mercosur", "EU sets an emergency brake for imports under the Mercosur deal",
+     "The rules for pausing tariff cuts if imports from South America hurt European producers."),
+    (r"forced labour", "EU bans products made with forced labour",
+     "Goods made with forced labour will be barred from the EU market, wherever they come from."),
+    (r"generalised scheme of tariff preferences", "EU renews its trade perks for developing countries",
+     "Lower tariffs for poorer countries' exports, tied to respect for human and labour rights."),
+    (r"Growth Facility for the Republic of Moldova", "EU launches a reform and growth fund for Moldova",
+     "EU money for Moldova, an EU candidate country, paid out as it carries out reforms."),
+]
+
+
+def context_for(text):
+    return next((v for k, v in CONTEXT.items() if k in text), "")
+
+
+def lead_text(d):
+    """(headline, explanation) for the front page, or (None, None) when no template fits."""
+    s = subject_of(d["title"])
+    for pat, hl, why in LEAD_FIXED:
+        if re.search(pat, s, re.I):
+            return hl, why
+    if d["kind"] == "Foreign policy update":
+        return None, None
+    m = re.search(r"European Peace Facility (?:to support|to strengthen the capacities of|for the supply to) (?:the )?(.*?)(?: with | in the | through |,|$)", s)
+    if m:
+        who = m.group(1).strip()
+        c = re.search(r"(?:Armed Forces|Army|Navy) of (?:the )?(?:Republic of |Islamic Republic of |Federal Republic of )?(.+)", who)
+        if c:
+            name = c.group(1).strip()
+            name = "the " + name if name in ("Philippines", "Democratic Republic of the Congo") else name
+            who_txt = f"{name}'" + ("" if name.endswith("s") else "s") + " armed forces"
+        else:
+            who_txt = "the " + re.sub(r"Armed Forces", "armed forces", who)
+        return (f"New EU military aid for {who_txt}",
+                ("EU governments approved a new package under the European Peace Facility, the EU fund that pays for "
+                 "equipment and training for partner armies. " + context_for(who)).strip())
+    if "restrictive measures" in s:
+        who = next((w for k, w in SANCTION_TARGETS if k.lower() in s.lower()), None)
+        if who:
+            return (f"EU adopts a new sanctions decision on {who}",
+                    ("EU sanctions usually mean asset freezes and travel bans for the people and companies listed, and "
+                     "sometimes trade bans. " + context_for(s)).strip())
+    m = re.search(r"Special Representative for (?:the )?(.*?)(?:,|$)", s)
+    if m and re.match(r"appointing", s, re.I):
+        topic = tidy(m.group(1), 60)
+        topic = "human rights" if topic.lower() == "human rights" else ("the " + topic if "for the " in m.group(0) else topic)
+        return (f"EU names a new special envoy for {topic}",
+                "EU Special Representatives speak for the EU in a region or on a theme, and report to the EU's foreign policy chief.")
+    m = re.search(r"(European Union [^,(]*?(?:Mission|mission|Operation|operation)) in (?:the )?([A-Z][\w ]+?)(?: \(([^)]+)\))?\s*$", s)
+    if m and not re.match(r"amending|extending", s, re.I):
+        return (f"EU sends a new mission to {m.group(2)}",
+                f"EU governments set up {m.group(3) or 'a new EU mission'}. The official text sets out its mandate, staff and budget. "
+                + context_for(m.group(2)))
+    m = re.search(r"macro-financial assistance to (?:the )?(.*?)(?:,|$)", s)
+    if m:
+        name = re.sub(r"^(?:Hashemite Kingdom of |Arab Republic of |Republic of )", "", m.group(1))
+        return (f"EU lends money to {name}",
+                "Macro-financial assistance: EU loans to a partner country in financial difficulty, paid out in stages as it carries out agreed reforms.")
+    return None, None
+
+
 def topic_of(headline, title, cfg):
     """Photo topic of a decision (config.json > photo_topics): the headline is checked first, then the full title."""
     for text in (headline, headline + " | " + subject_of(title)):
@@ -442,6 +567,8 @@ def main():
             if cache[c].get("section") in {s["id"] for s in cfg["sections"]}:
                 d["section"] = cache[c]["section"]
         d["topic"] = topic_of(d["headline"], d["title"], cfg)
+        if d["section"] in ("defence", "justice", "world"):
+            d["lead_hl"], d["lead_dek"] = lead_text(d)
         if d["section"]:
             decisions.append(d)
     json.dump(cache, open(cache_path, "w"), ensure_ascii=False, indent=1)
@@ -486,6 +613,11 @@ def main():
            "targets": targets, "decisions": decisions, "photos": photos}
     with open(os.path.join(HERE, "data.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
+    try:   # readable pages for Google and for sharing (decision/, section/, sitemap.xml)
+        import pages
+        pages.build(out, cfg)
+    except Exception as e:
+        print("  pages skipped:", e)
     per = {}
     for d in decisions:
         per[d["section"]] = per.get(d["section"], 0) + 1

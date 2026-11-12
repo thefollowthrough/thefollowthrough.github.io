@@ -48,3 +48,14 @@ Les décisions du Conseil qui modifient une décision existante (listes de sanct
 
 ## Les photos des articles
 Chaque décision reçoit une photo qui correspond à son sujet (guerre en Ukraine, Iran, quotas de pêche, douanes, inondations…). La liste des sujets et des mots-clés qui les reconnaissent est dans `config.json`, rubrique `photo_topics`. Les photos choisies pour chaque sujet (toutes libres de droits, vérifiées une par une, sans images violentes) sont dans `photos.json`, rubrique `topics`. Une nouvelle décision est rangée automatiquement dans le bon sujet ; si aucun sujet ne correspond, elle prend une photo générale de sa rubrique.
+
+## Google et le partage des liens
+Google ne lit pas les adresses en `#/…` du site interactif. `pages.py` (lancé à la fin de `update.py`) fabrique donc chaque matin des pages simples qu'il peut lire :
+- `decision/<numéro CELEX>.html` : une page par décision, avec titre, photo, score, dates, titre officiel et décisions liées ; un bouton renvoie vers la version interactive ;
+- `section/<rubrique>.html` et `goals.html` ;
+- `sitemap.xml` (la liste de toutes les pages, à donner à Google Search Console) et `robots.txt`.
+Ces pages ont aussi leur image et leur titre d'aperçu : un lien partagé sur WhatsApp ou LinkedIn s'affiche avec la photo de l'article. Le bouton « Share ↗ » de chaque article partage cette page.
+
+## La une
+- **La bannière** : la photo de l'hémicycle du jour passe derrière le titre et le menu, posés sur des bandeaux papier. Le sceau TFT est en haut à gauche (`seal.svg`).
+- **L'article de une** change chaque jour : il tourne entre Security & Defence, Migration & Rights et Trade & World, parmi les décisions récentes les plus importantes. Son titre et son résumé « de journal » sont écrits par des modèles dans `update.py` (`LEAD_FIXED` pour les lois connues, et des modèles pour l'aide militaire, les sanctions, les missions, les envoyés spéciaux et les prêts). Pour ajouter un titre, ajoute une ligne à `LEAD_FIXED`.
