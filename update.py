@@ -268,6 +268,15 @@ def classify(title, codes, cfg):
     return ordered[0], ordered
 
 
+def topic_of(headline, title, cfg):
+    """Photo topic of a decision (config.json > photo_topics): the headline is checked first, then the full title."""
+    for text in (headline, headline + " | " + subject_of(title)):
+        for t in cfg.get("photo_topics", []):
+            if re.search(t["match"], text, re.I):
+                return t["id"]
+    return None
+
+
 # ---------------------------------------------------------------- 4. AI (optional)
 def ai_enrich(d, cfg):
     key = os.environ.get("ANTHROPIC_API_KEY")
@@ -432,6 +441,7 @@ def main():
             d["summary"] = cache[c].get("summary")
             if cache[c].get("section") in {s["id"] for s in cfg["sections"]}:
                 d["section"] = cache[c]["section"]
+        d["topic"] = topic_of(d["headline"], d["title"], cfg)
         if d["section"]:
             decisions.append(d)
     json.dump(cache, open(cache_path, "w"), ensure_ascii=False, indent=1)

@@ -532,5 +532,398 @@
     "Common Agricultural Policy"
    ]
   }
+ ],
+ "photo_topics": [
+  {
+   "id": "disaster",
+   "match": "Solidarity Fund|Disaster aid|flood|RESTORE|reconstruction",
+   "search": [
+    "Valencia floods 2024",
+    "2024 Central European floods",
+    "flood damage Germany 2021 Ahr"
+   ]
+  },
+  {
+   "id": "layoffs",
+   "match": "Globalisation Adjustment|laid-off|Displaced Workers|job displacement|Works Councils",
+   "search": [
+    "Volkswagen Wolfsburg production line",
+    "BMW plant assembly line",
+    "Audi Brussels plant",
+    "Van Hool factory Koningshooikt",
+    "Goodyear plant Fulda",
+    "Tupperware Aalst"
+   ]
+  },
+  {
+   "id": "fishing",
+   "match": "fish|Fisheries|vessel",
+   "search": [
+    "fishing trawler harbour",
+    "fishing boats port Brittany",
+    "fishermen nets"
+   ]
+  },
+  {
+   "id": "naval",
+   "match": "EUNAVFOR|ASPIDES|ATALANTA|IRINI|maritime security operation|\\bNavy\\b",
+   "search": [
+    "frigate Atalanta piracy",
+    "German Navy frigate Red Sea",
+    "Italian Navy frigate",
+    "French Navy frigate Mediterranean"
+   ]
+  },
+  {
+   "id": "iran",
+   "match": "\\bIran",
+   "search": [
+    "Tehran skyline Milad tower",
+    "Azadi Tower Tehran"
+   ]
+  },
+  {
+   "id": "belarus",
+   "match": "situation in Belarus|involvement of Belarus|Sanctions update: Belarus|targets Belarus",
+   "search": [
+    "Minsk Independence Square",
+    "Minsk city"
+   ]
+  },
+  {
+   "id": "ukraine_war",
+   "match": "Ukrain\\w* (?:Armed Forces|military)|EUMAM Ukraine|EUAM Ukraine|war in Ukraine|Ukraine Support Loan|Ukraine Facility|ammunition safety risks in Ukraine|territorial integrity|Russian-occupied|Crimea|Sevastopol|occupation or annexation|war of aggression|situation in Ukraine|aggression against Ukraine",
+   "search": [
+    "Russian invasion of Ukraine destroyed building",
+    "Armed Forces of Ukraine soldiers 2023",
+    "Kyiv after Russian missile strike",
+    "Ukrainian artillery"
+   ]
+  },
+  {
+   "id": "russia",
+   "match": "Russia.s (?:destabilising|destabilizing|hybrid)|situation in Russia|Russia over|Kremlin",
+   "search": [
+    "Moscow Kremlin",
+    "Kremlin wall Red Square"
+   ]
+  },
+  {
+   "id": "aid_abroad",
+   "match": "macro-financial|Growth Facility|External Action|humanitarian",
+   "search": [
+    "EU humanitarian aid ECHO",
+    "European Union funded project sign",
+    "EU aid delivery"
+   ]
+  },
+  {
+   "id": "palestine",
+   "match": "Hamas|Palestin|Gaza|Rafah|Middle East Peace",
+   "search": [
+    "Gaza City destruction 2023",
+    "Rafah border crossing"
+   ]
+  },
+  {
+   "id": "lebanon",
+   "match": "Leban|Beirut",
+   "search": [
+    "Beirut skyline"
+   ]
+  },
+  {
+   "id": "syria",
+   "match": "Syria|Damascus",
+   "search": [
+    "Damascus city"
+   ]
+  },
+  {
+   "id": "arms_control",
+   "match": "small arms|ammunition|chemical weapons|biological|non-proliferation|ballistic|mine-free|Ottawa|disarmament|Arms Trade|weapons of mass|OPCW|1540|nuclear|firearms|illicit trafficking|Secretary-General.s Mechanism|Nations Verific|Siem Reap|anti-personnel|protection of civilians",
+   "search": [
+    "weapons destruction ceremony",
+    "demining Ukraine deminers",
+    "OPCW inspectors",
+    "ammunition stockpile"
+   ]
+  },
+  {
+   "id": "africa",
+   "match": "Mauritania|Nigeria|Cabo Verde|Togo|Benin|Senegal|Ivoire|Chad|Congo|Djibouti|Sahel|Mali\\b|Niger\\b|Central African|Mozambique|Rwanda|Somali|African Union|Sudan|Libya|Zimbabwe|Guinea|Burundi|Great Lakes|Horn of Africa|Ghana|Kenya|Yaound|Africa",
+   "search": [
+    "EUTM Mali training soldiers",
+    "EUTM Somalia training",
+    "African Union peacekeepers AMISOM",
+    "EUCAP Sahel"
+   ]
+  },
+  {
+   "id": "moldova",
+   "match": "Moldova|Transnistria|Chisinau",
+   "search": [
+    "Parliament of Moldova building Chisinau"
+   ]
+  },
+  {
+   "id": "georgia",
+   "match": "Georgia\\b",
+   "search": [
+    "EUMM Georgia patrol"
+   ]
+  },
+  {
+   "id": "armenia",
+   "match": "Armenia|South Caucasus",
+   "search": [
+    "Yerevan Republic Square"
+   ]
+  },
+  {
+   "id": "balkans",
+   "match": "Kosovo|Bosnia|Albania|Montenegro|North Macedonia|Serbia|Belgrade|Pristina|Balkan|KFOR|EUFOR",
+   "search": [
+    "KFOR Kosovo",
+    "Sarajevo city"
+   ]
+  },
+  {
+   "id": "haiti",
+   "match": "Haiti",
+   "search": [
+    "Port-au-Prince Haiti"
+   ]
+  },
+  {
+   "id": "venezuela",
+   "match": "Venezuela",
+   "search": [
+    "Caracas Venezuela"
+   ]
+  },
+  {
+   "id": "north_korea",
+   "match": "Korea",
+   "search": [
+    "Pyongyang city"
+   ]
+  },
+  {
+   "id": "myanmar",
+   "match": "Myanmar|Burma",
+   "search": [
+    "Yangon Myanmar city"
+   ]
+  },
+  {
+   "id": "defence_industry",
+   "match": "defence|defense|PESCO|military mobility|(?-i:\\bSAFE\\b)|ReArm|armament|Space Threat|AGILE|Military Committee|Security and Defence College|Peace Facility|\\bmilitary\\b",
+   "search": [
+    "Leopard 2 tank exercise",
+    "Bundeswehr military convoy",
+    "ammunition factory production shells",
+    "military exercise NATO soldiers Europe"
+   ]
+  },
+  {
+   "id": "sanctions",
+   "match": "sanction|restrictive measures|terrorist groups|combat terrorism|ISIL|cyber-attack|human rights|Special Representative|envoy|Diplomatic Academy",
+   "search": [
+    "Europa building Council of the European Union",
+    "Foreign Affairs Council meeting Brussels",
+    "Justus Lipsius building"
+   ]
+  },
+  {
+   "id": "workers",
+   "match": "workers|carcinogen|labour|social security|Talent Pool",
+   "search": [
+    "industrial worker protective helmet factory Europe",
+    "metal worker workshop",
+    "Arbeiter Fabrik Produktion"
+   ]
+  },
+  {
+   "id": "waste",
+   "match": "waste(?!water)|packaging|plastic|recycl|pellet|detergent|batter|end-of-life vehicles|circular",
+   "search": [
+    "recycling bins Europe",
+    "plastic waste beach",
+    "recycling plant sorting"
+   ]
+  },
+  {
+   "id": "emissions",
+   "match": "emission|carbon|CO2|greenhouse|climate|(?-i:\\bETS\\b)|market stability",
+   "search": [
+    "traffic jam motorway Germany",
+    "cars exhaust traffic city",
+    "steel plant smoke chimney Europe",
+    "airplane contrails sky"
+   ]
+  },
+  {
+   "id": "energy",
+   "match": "\\bgas\\b|\\boil\\b|energy|electricity|Energy Charter|hydrogen|electric vehicle supply",
+   "search": [
+    "LNG terminal ship",
+    "gas pipeline Europe",
+    "wind turbines Europe"
+   ]
+  },
+  {
+   "id": "water_nature",
+   "match": "water|wolf|soil|forest|biodiversity|nature|pollution",
+   "search": [
+    "European grey wolf",
+    "river Europe clean water",
+    "forest Europe beech"
+   ]
+  },
+  {
+   "id": "farming",
+   "match": "farm|agricultur|crop|seed|plant|genomic|wine|rural|CAP\\b|direct payment|food supply chain|outermost",
+   "search": [
+    "tractor field Europe harvest",
+    "vineyard Europe",
+    "wheat field"
+   ]
+  },
+  {
+   "id": "justice",
+   "match": "Europol|Eurojust|criminal|corruption|victims|police|insolvency|court|judicial|GDPR|2016/679",
+   "search": [
+    "Court of Justice of the European Union Luxembourg",
+    "police officers Europe",
+    "Europol headquarters The Hague"
+   ]
+  },
+  {
+   "id": "migration",
+   "match": "return of third-country|third-country nationals|safe countr|safe third|asylum|migra|visa|external border|Schengen|entry/exit|2017/2226|passenger information|identity cards|Vanuatu|suspension mechanism",
+   "search": [
+    "Frontex border guards",
+    "passport control airport",
+    "migrants boat Mediterranean rescue"
+   ]
+  },
+  {
+   "id": "elections",
+   "match": "vote|elections|political parties",
+   "search": [
+    "ballot box election Europe",
+    "European Parliament election 2024 polling station"
+   ]
+  },
+  {
+   "id": "health",
+   "match": "health|medic|pharma|compulsory licensing|patient|disease",
+   "search": [
+    "hospital nurse patient Europe",
+    "doctor stethoscope hospital",
+    "pharmacy shelves medicines Europe",
+    "vaccine vials"
+   ]
+  },
+  {
+   "id": "pets",
+   "match": "dogs and cats|animal welfare|\\bpets?\\b",
+   "search": [
+    "dog and cat together"
+   ]
+  },
+  {
+   "id": "toys",
+   "match": "\\btoys?\\b",
+   "search": [
+    "toy store shelves"
+   ]
+  },
+  {
+   "id": "consumers",
+   "match": "consumer|travellers|package travel|dispute resolution|product safety",
+   "search": [
+    "airport departures hall travellers"
+   ]
+  },
+  {
+   "id": "chemicals",
+   "match": "chemicals\\b|Chemicals Agency|ECHA|REACH",
+   "search": [
+    "chemistry laboratory",
+    "chemical plant Europe"
+   ]
+  },
+  {
+   "id": "finance",
+   "match": "\\bbank|resolution|deposit|insurance|Solvency|supervision|benchmark|central counterpart|securities|settlement cycle|financial services|investment firms|ESG rating|sustainability reporting|capital requirements|foreign investments",
+   "search": [
+    "Frankfurt skyline banks",
+    "European Central Bank Frankfurt",
+    "stock exchange trading floor"
+   ]
+  },
+  {
+   "id": "tax_euro",
+   "match": "VAT|\\btax|euro in Bulgaria|euro for Bulgaria|Brexit|multiannual financial|EU budget|guarantee|InvestEU|Prosecutor|anti-fraud",
+   "search": [
+    "euro banknotes coins",
+    "Bulgarian euro coins",
+    "calculator tax documents"
+   ]
+  },
+  {
+   "id": "ai_data",
+   "match": "artificial intelligence|\\bAI\\b|data|cyber|computing|digital|security services|chips|semiconductor|privacy|online",
+   "search": [
+    "data center servers",
+    "supercomputer",
+    "semiconductor chip wafer"
+   ]
+  },
+  {
+   "id": "rail",
+   "match": "rail",
+   "search": [
+    "ICE train Germany",
+    "freight train Europe"
+   ]
+  },
+  {
+   "id": "road",
+   "match": "driving|road|vehicle|heavy-duty|truck|car\\b|machinery",
+   "search": [
+    "highway traffic Europe",
+    "driving school car",
+    "trucks on motorway"
+   ]
+  },
+  {
+   "id": "maritime",
+   "match": "maritime|ship|port State|flag State|inland waterway|river information",
+   "search": [
+    "cargo ship port",
+    "inland waterway barge Rhine",
+    "EMSA ship"
+   ]
+  },
+  {
+   "id": "construction",
+   "match": "construction products|buildings|housing",
+   "search": [
+    "construction site crane Europe",
+    "apartment buildings Europe"
+   ]
+  },
+  {
+   "id": "trade",
+   "match": "customs|tariff|import|export|trade|Mercosur|steel|overcapacity|forced labour|macro-financial|Growth Facility|preferences",
+   "search": [
+    "container ship Port of Rotterdam",
+    "container terminal Antwerp",
+    "steel mill Europe"
+   ]
+  }
  ]
 }

@@ -26,6 +26,16 @@ function photo(key, seed = '') {
   if (p) usedPhotos.set(p.url, p);
   return p || null;
 }
+// photo matching what a decision is about (its topic, set by update.py), else one from its section
+function photoFor(d) {
+  const pool = (D.photos.topics || {})[d.topic] || [];
+  if (!pool.length) return photo(d.section, d.id);
+  const start = hash(d.id) % pool.length;
+  const ordered = [...pool.slice(start), ...pool.slice(0, start)];
+  const p = ordered.find(x => !usedPhotos.has(x.url)) || ordered[0];
+  usedPhotos.set(p.url, p);
+  return p;
+}
 const img = (p, alt = '', cls = '') => p ? `<img class="${cls}" src="${esc(p.url.replace("/1920px-", "/1280px-"))}" alt="${esc(alt || p.title)}" loading="lazy">` : '';
 const credit = p => p ? `<div class="caption">Photo: ${esc(p.author)} / <a href="${esc(p.source)}" target="_blank" rel="noopener">${esc(p.licence)}</a></div>` : '';
 
@@ -175,7 +185,7 @@ function renderFront() {
   </section>
 
   <div class="section-title"><h2>Top stories</h2></div>
-  <section class="top3">${top.map(d => { const p = photo(d.section, d.id); return `<article class="card">
+  <section class="top3">${top.map(d => { const p = photoFor(d); return `<article class="card">
       <a href="#/decision/${encodeURIComponent(d.id)}">${img(p, d.headline)}</a>
       <div style="margin-top:12px"><span class="kicker">${esc(SEC[d.section].name)}</span></div>
       <a href="#/decision/${encodeURIComponent(d.id)}"><h2 class="hl">${esc(d.headline)}</h2></a>
@@ -202,7 +212,7 @@ function renderFront() {
     const list = D.decisions.filter(d => d.section === s.id && !used.has(d.id)).sort((a, b) => weight(b) - weight(a)).slice(0, 3);
     const all = D.decisions.filter(d => d.section === s.id).length;
     if (!all) return;
-    const p = photo(s.id, 'sec');
+    const p = list[0] ? photoFor(list[0]) : photo(s.id, 'sec');   // matches the first headline beside it
     html += `<div class="sec-block"><header><a href="#/section/${s.id}"><h3 class="hl" style="margin:0">${esc(s.name)}</h3></a><span class="count">${all} decisions</span></header>
       <div class="sec-inner"><a href="#/section/${s.id}">${img(p, s.name)}</a>
       <ul class="plain">${list.map(d => `<li><a href="#/decision/${encodeURIComponent(d.id)}"><div class="hl">${esc(d.headline)}</div></a><div class="meta">${dShort(d.date)}</div></li>`).join('')}
@@ -299,7 +309,7 @@ function ring(pct, cls) {
 
 function renderDecision(d) {
   document.title = `${d.headline} · ${D.site.name}`;
-  const s = SEC[d.section], sc = score(d), ms = milestones(d), p = photo(d.section, d.id);
+  const s = SEC[d.section], sc = score(d), ms = milestones(d), p = photoFor(d);
   const next = ms.find(m => m.date > TODAY);
   const nFollow = d.links.based_on.length;
   const related = D.decisions.filter(x => x.section === d.section && x.id !== d.id).sort((a, b) => weight(b) - weight(a)).slice(0, 4);
@@ -344,7 +354,7 @@ function renderDecision(d) {
   </section>
 
   ${related.length ? `<div class="section-title"><h2>More in ${esc(s.name)}</h2><a href="#/section/${s.id}">See all →</a></div>
-  <section class="related">${related.map(x => { const ph = photo(x.section, x.id); return `<article>
+  <section class="related">${related.map(x => { const ph = photoFor(x); return `<article>
     <a href="#/decision/${encodeURIComponent(x.id)}">${img(ph, x.headline)}<div class="hl">${esc(x.headline)}</div></a>
     <div class="meta">${pill(x)}</div></article>`; }).join('')}</section>` : ''}`;
 

@@ -45,3 +45,6 @@ Tout se passe dans `config.json`, rubrique `targets`. Chaque objectif indique : 
 
 ## Les mises à jour de politique étrangère
 Les décisions du Conseil qui modifient une décision existante (listes de sanctions, missions, aides militaires) apparaissent avec le type « Foreign policy update ». Elles ne font jamais la une et sont limitées à 2 dans « Just in », pour que les nouvelles décisions restent visibles.
+
+## Les photos des articles
+Chaque décision reçoit une photo qui correspond à son sujet (guerre en Ukraine, Iran, quotas de pêche, douanes, inondations…). La liste des sujets et des mots-clés qui les reconnaissent est dans `config.json`, rubrique `photo_topics`. Les photos choisies pour chaque sujet (toutes libres de droits, vérifiées une par une, sans images violentes) sont dans `photos.json`, rubrique `topics`. Une nouvelle décision est rangée automatiquement dans le bon sujet ; si aucun sujet ne correspond, elle prend une photo générale de sa rubrique.
