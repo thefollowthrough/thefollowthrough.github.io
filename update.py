@@ -144,6 +144,8 @@ SANCTION_TARGETS = [
     ("Moldova", "those destabilising Moldova"),
     ("Russia’s destabilising activities", "Russia's hybrid attacks"),
     ("Russia's destabilising activities", "Russia's hybrid attacks"),
+    ("Russia’s destabilizing activities", "Russia's hybrid attacks"),
+    ("Russia's destabilizing activities", "Russia's hybrid attacks"),
     ("situation in Russia", "Russia over human rights"),
     ("bodies in view of the situation in Ukraine", "former Ukrainian officials over stolen funds"),
     ("Ukraine", "Russia over the war in Ukraine"),
@@ -159,6 +161,11 @@ SANCTION_TARGETS = [
     ("Myanmar", "Myanmar"),
     ("Sudan", "Sudan"),
 ]
+
+
+def sanction_target(s):
+    """Plain-words name of who a sanctions regime targets, or None."""
+    return next((w for k, w in SANCTION_TARGETS if k.lower() in s.lower()), None)
 
 
 def update_headline(s):
@@ -197,8 +204,8 @@ def headline(title):
     low = s.lower()
     rules = [
         (r"restrictive measures (?:in view of the situation in|in view of|in respect of|against|concerning) (?:the )?(.*?)(?: and the involvement| and |,|$)",
-         lambda m: f"New sanctions round targets {tidy(m.group(1), 60)}"),
-        (r"restrictive measures", lambda m: "EU updates its sanctions list"),
+         lambda m: f"EU sanctions decision: {sanction_target(s) or tidy(m.group(1), 60)}"),
+        (r"restrictive measures", lambda m: f"EU sanctions decision: {sanction_target(s)}" if sanction_target(s) else "EU sanctions decision"),
         (r"European Peace Facility to support (?:the )?(.*?)(?: with | in |$)",
          lambda m: f"Military aid: EU backs {tidy(m.group(1), 70)}"),
         (r"Globalisation Adjustment Fund.*?application from (\w+)(?:.*?/([A-Z][\w ]+?)(?: \d|$))?",

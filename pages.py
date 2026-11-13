@@ -45,6 +45,12 @@ def score(d, targets, today):
         return t["progress"], "Goal progress", f"Europe is {t['progress']}% of the way to the goal this decision serves: “{t['short']}”."
     ms = milestones(d)
     passed = sum(1 for k, _ in ms if k <= today)
+    if len(ms) < 3 or d["kind"] == "Foreign policy update":   # a percentage would mean nothing: give a status
+        later = next(((k, v) for k, v in ms if k > today), None)
+        if later:
+            return None, "Not yet in force", f"Adopted on {dlong(d['date'])}. {later[1].split(' (')[0]} on {dlong(later[0])}."
+        eif = (d.get("in_force") or [None])[0]
+        return None, ("In force" if eif else "Adopted"), (f"In force since {dlong(eif)}." if eif else f"Adopted on {dlong(d['date'])}.")
     pct = round(passed / len(ms) * 100)
     nxt = next(((k, v) for k, v in ms if k > today), None)
     why = (f"{passed} of {len(ms)} legal milestones reached. Next: {nxt[1].lower()} on {dlong(nxt[0])}."
@@ -86,7 +92,7 @@ def img_url(p):
     return p["url"].replace("/1920px-", "/1280px-")
 
 
-def page(cfg, *, title, description, path, body, image=None, og_type="website", jsonld=None, css_v="12"):
+def page(cfg, *, title, description, path, body, image=None, og_type="website", jsonld=None, css_v="13"):
     site = cfg["site"]
     base = site["url"].rstrip("/")
     url = f"{base}/{path}" if path else f"{base}/"
@@ -175,7 +181,7 @@ def decision_page(d, data, cfg, by_topic, today):
 <h1 class="hl">{e(d['headline'])}</h1>
 <p class="dek" style="font-size:19px">{e(desc)}</p>
 {photo_html}
-<p style="margin-top:26px"><span class="kicker">{e(label)}</span><br><span class="score">{pct}%</span></p>
+<p style="margin-top:26px"><span class="kicker">{e("Status" if pct is None else label)}</span><br><span class="score">{e(label) if pct is None else f"{pct}%"}</span></p>
 <p>{e(why)}</p>
 <a class="go" href="/#/decision/{e(d['id'])}">See the progress chart, decision map and timeline →</a>
 <ul class="facts">{facts}</ul>
@@ -248,7 +254,7 @@ def coming_page(data, cfg):
 def about_page(data, cfg):
     body = f"""<div class="crumbs" style="margin-top:20px"><a href="/">Front page</a> › About</div>
 <h1 class="hl">About The Follow-Through</h1>
-<p class="dek">An independent, non-commercial tracker of EU decisions. Brussels makes the promises; we follow what happens next.</p>
+<p class="dek">An independent, non-commercial tracker of EU decisions and of their implementation, based on official sources.</p>
 
 <h2>What we do</h2>
 <p>Every day, a program reads the EU's official journal and lists the main decisions taken in the last two years: laws passed by the European Parliament and the Council, Council regulations and directives, and foreign-policy decisions such as sanctions, missions and military aid. For each one we show its legal milestones (entry into force, deadlines), what came next (follow-up acts, reports, amendments) and, when it serves a measurable EU target, how far Europe is from that target according to official statistics.</p>

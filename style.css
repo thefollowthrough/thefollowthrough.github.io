@@ -244,3 +244,6 @@ ul.plain { list-style: none; margin: 0; padding: 0; }
 .row.coming .day small { line-height: 1.2; }
 @media (max-width: 600px) { .steps .step em { display: none; } }
 @media (max-width: 760px) { #cfilters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; } #cfilters::-webkit-scrollbar { display: none; } #cfilters a { white-space: nowrap; } }
+
+.status-big { width: 120px; height: 120px; margin: 6px auto 4px; border-radius: 50%; border: 10px solid #e4dfd3; display: flex; align-items: center; justify-content: center; font: 800 46px/1 var(--serif-d); color: var(--muted); }
+.status-big.good { border-color: var(--good); color: var(--good); }

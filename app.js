@@ -63,6 +63,15 @@ function score(d) {
       why: `Europe is ${t.progress}% of the way to the goal this decision serves: “${t.short}”.` };
   }
   const ms = milestones(d), passed = ms.filter(m => m.date <= TODAY).length;
+  // A percentage only means something when a decision has several legal steps spread over time.
+  // Otherwise (most sanctions, missions, one-step acts) we give a plain status instead.
+  if (ms.length < 3 || d.kind === 'Foreign policy update') {
+    const eif = d.in_force[0], later = ms.find(m => m.date > TODAY);
+    if (later) return { pct: null, kind: 'status', label: 'Status', cls: '', verdict: 'Not yet in force',
+      why: `Adopted on ${dLong(d.date)}. ${later.what.split(' (')[0]} on ${dLong(later.date)}.` };
+    return { pct: null, kind: 'status', label: 'Status', cls: 'good', verdict: eif ? 'In force' : 'Adopted',
+      why: eif ? `In force since ${dLong(eif)}.` : `Adopted on ${dLong(d.date)}.` };
+  }
   const pct = Math.round(passed / ms.length * 100);
   const next = ms.find(m => m.date > TODAY);
   const verdict = pct >= 100 ? 'Fully in effect' : pct >= 50 ? 'Rolling out' : 'Just starting';
@@ -71,7 +80,8 @@ function score(d) {
               : ms.length === 1 ? 'Its only legal milestone has been reached.' : `All ${ms.length} legal milestones have been reached.` };
 }
 
-const pill = d => { const s = score(d); return `<span class="pill ${s.cls}"><i></i>${s.label}: ${s.pct}%</span>`; };
+const pill = d => { const s = score(d); return `<span class="pill ${s.cls}"><i></i>${s.pct == null ? s.verdict : `${s.label}: ${s.pct}%`}</span>`; };
+const sideScore = sc => `${sc.label}<b>${sc.verdict}${sc.pct == null ? '' : ` · ${sc.pct}%`}</b>${sc.pct == null ? '' : `<div class="mini ${sc.cls}"><span style="width:${sc.pct}%"></span></div>`}`;
 const isNew = d => daysAgo(d.date) <= 14;
 const kindTag = d => `<span class="tag ${d.kind === 'EU law' ? 'law' : ''}">${esc(d.kind)}</span>`;
 const WHO = { 'EU law': 'Passed by the European Parliament and the Council', 'Council act': 'Adopted by the Council of the EU', 'Foreign policy decision': 'Foreign-policy decision by EU governments', 'Foreign policy update': 'EU governments changed an earlier foreign-policy decision' };
@@ -231,9 +241,9 @@ function renderFront() {
 
   const council = photo('commission', 'band');
   html += `<section class="band">${img(council, 'Berlaymont, European Commission headquarters')}
-    <div><span class="kicker" style="color:var(--gold)">Why this exists</span>
-      <h2>Brussels makes the promises. We keep the receipts.</h2>
-      <p>Every day, the EU adopts laws, targets and sanctions. Most coverage stops at the vote. We follow each decision after the headlines fade: when it kicks in, what came next, and whether the numbers are moving.</p>
+    <div><span class="kicker" style="color:var(--gold)">About this site</span>
+      <h2>Following EU decisions beyond the vote.</h2>
+      <p>Every week, the European Union adopts laws, targets and sanctions. The Follow-Through records each one and follows its implementation over time: when it takes effect, which measures follow, and how the related indicators evolve, using official sources only. <a href="about.html" style="text-decoration:underline">Our method</a></p>
       <p style="font:500 13px var(--sans);color:#9fb0d6">${D.decisions.length} decisions tracked since ${dLong(D.since)} · updated ${dLong(D.updated)}</p>
     </div></section>`;
 
@@ -353,7 +363,7 @@ function renderSearch(q) {
         <div class="day">${dt.getDate()}<small>${dt.toLocaleDateString('en-GB', { month: 'short', year: '2-digit' })}</small></div>
         <div><span class="kicker">${esc(SEC[d.section].kicker)}<span class="k2">${esc(d.kind)} · ${esc(d.ref)}</span></span>
           <a href="#/decision/${encodeURIComponent(d.id)}"><h2 class="hl">${esc(d.lead_hl || d.headline)}</h2></a></div>
-        <div class="side">${sc.label}<b>${sc.verdict} · ${sc.pct}%</b><div class="mini ${sc.cls}"><span style="width:${sc.pct}%"></span></div></div>
+        <div class="side">${sideScore(sc)}</div>
       </article>`;
     }).join('');
   };
@@ -370,7 +380,7 @@ function renderSection(s) {
   document.title = `${s.name} · ${D.site.name}`;
   const list = D.decisions.filter(d => d.section === s.id);
   const p = photo(s.id, 'hero');
-  const inEffect = list.filter(d => score(d).pct >= 100).length;
+  const inEffect = list.filter(d => { const s = score(d); return s.pct == null ? s.verdict === 'In force' : s.pct >= 100; }).length;
   const follow = list.reduce((n, d) => n + nl(d, 'based_on') + nl(d, 'amended_by'), 0);
   const goals = D.targets.filter(t => t.section === s.id);
   $app.innerHTML = `
@@ -383,8 +393,8 @@ function renderSection(s) {
     ${credit(p)}
     <div class="sec-stats" style="margin-top:14px">
       <div><strong>${list.length}</strong>decisions since ${new Date((s.since || D.since) + 'T12:00').getFullYear()}</div>
-      <div><strong>${inEffect}</strong>fully in effect</div>
-      <div><strong>${list.length - inEffect}</strong>still rolling out</div>
+      <div><strong>${inEffect}</strong>in force</div>
+      <div><strong>${list.length - inEffect}</strong>still being rolled out</div>
       <div><strong>${follow}</strong>follow-up acts and reports</div>
     </div>
     ${goals.length ? `<div class="section-title" style="margin-top:22px"><h2>The goals</h2></div><div class="goals">${goals.map(t => scoreCard(t)).join('')}</div>` : ''}
@@ -404,7 +414,7 @@ function renderSection(s) {
         <div><span class="kicker">${kindTag(d)}${isNew(d) ? '<span class="tag new">New</span>' : ''}<span class="k2">${esc(d.ref)}</span></span>
           <a href="#/decision/${encodeURIComponent(d.id)}"><h2 class="hl">${esc(d.headline)}</h2></a>
           <p class="dek">${esc(dek(d))}</p></div>
-        <div class="side">${sc.label}<b>${sc.verdict} · ${sc.pct}%</b><div class="mini ${sc.cls}"><span style="width:${sc.pct}%"></span></div></div>
+        <div class="side">${sideScore(sc)}</div>
       </article>`;
     });
     document.getElementById('list').innerHTML = html || '<p class="muted">Nothing here yet.</p>';
@@ -445,7 +455,8 @@ function renderDecision(d) {
     </article>
     <aside><div class="scorebox">
       <div class="lbl">${sc.label}</div>
-      <div class="ring">${ring(sc.pct, sc.cls)}<div class="num">${sc.pct}%<small>${sc.kind === 'goal' ? 'of the way to the goal' : 'of milestones reached'}</small></div></div>
+      ${sc.pct == null ? `<div class="status-big ${sc.cls}">${sc.cls === 'good' ? '✓' : '…'}</div>`
+        : `<div class="ring">${ring(sc.pct, sc.cls)}<div class="num">${sc.pct}%<small>${sc.kind === 'goal' ? 'of the way to the goal' : 'of milestones reached'}</small></div></div>`}
       <div class="verdict ${sc.cls}">${sc.verdict}</div>
       <p class="why">${esc(sc.why)}</p>
       <dl class="facts">
@@ -553,7 +564,8 @@ function rolloutChart(d) {
     return `<circle cx="${X(t)}" cy="70" r="9" fill="${past ? 'var(--eu)' : '#fff'}" stroke="var(--eu)" stroke-width="3"/>
       <text x="${X(t)}" y="${i % 2 ? 108 : 42}" text-anchor="middle" font-size="12" font-weight="700" fill="#141414">${dShort(m.date)}</text>
       <text x="${X(t)}" y="${i % 2 ? 124 : 26}" text-anchor="middle" font-size="11.5" fill="#6f6a60">${esc(m.what.split(' (')[0])}</text>`; }).join('');
-  return `<h3>Rollout: ${score(d).pct}% of milestones reached</h3>
+  const sc0 = score(d);
+  return `<h3>${sc0.pct == null ? `Legal milestones: ${sc0.verdict.toLowerCase()}` : `Rollout: ${sc0.pct}% of milestones reached`}</h3>
     <p class="sub">This decision has no single number to track yet, so we follow its legal milestones. Filled = done, hollow = still to come.</p>
     <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">
       <line x1="30" x2="${W - 30}" y1="70" y2="70" stroke="#d9d3c7" stroke-width="4"/>
