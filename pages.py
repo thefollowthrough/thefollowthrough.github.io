@@ -107,6 +107,7 @@ def page(cfg, *, title, description, path, body, image=None, og_type="website", 
 <meta property="og:url" content="{e(url)}">
 <meta property="og:image" content="{e(image)}">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png">
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
