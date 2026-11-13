@@ -22,6 +22,6 @@ jobs:
         run: |
           git config user.name "follow-through-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add data.json ai_cache.json decision section goals.html sitemap.xml robots.txt
+          git add data.json ai_cache.json decision section goals.html about.html sitemap.xml robots.txt feed.xml
           git diff --cached --quiet || git commit -m "Daily update: $(date -u +%F)"
           git push
