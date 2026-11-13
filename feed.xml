@@ -6,7 +6,7 @@
     <atom:link href="https://thefollowthrough.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     <description>Europe decided. Did it deliver? New EU decisions, and whether they deliver.</description>
     <language>en</language>
-    <lastBuildDate>Thu, 12 Nov 2026 12:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 13 Nov 2026 12:00:00 +0000</lastBuildDate>
     <image><url>https://thefollowthrough.github.io/icon-192.png</url><title>The Follow-Through</title><link>https://thefollowthrough.github.io/</link></image>
     <item>
       <title>New EU military aid for Mauritania&#x27;s armed forces</title>
@@ -17,20 +17,20 @@
       <description>EU governments approved a new package under the European Peace Facility, the EU fund that pays for equipment and training for partner armies. Mauritania borders Mali, where armed jihadist groups are active.</description>
     </item>
     <item>
-      <title>EU adopts a new sanctions decision on DR Congo</title>
-      <link>https://thefollowthrough.github.io/decision/32026R2374.html</link>
-      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026R2374.html</guid>
-      <pubDate>Mon, 26 Oct 2026 12:00:00 +0000</pubDate>
-      <category>Security &amp; Defence</category>
-      <description>EU sanctions usually mean asset freezes and travel bans for the people and companies listed, and sometimes trade bans. Eastern Congo has seen heavy fighting involving the M23 armed group.</description>
-    </item>
-    <item>
       <title>Customs duties adjusted for selected imports</title>
       <link>https://thefollowthrough.github.io/decision/32026R2446.html</link>
       <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026R2446.html</guid>
       <pubDate>Mon, 26 Oct 2026 12:00:00 +0000</pubDate>
       <category>Trade &amp; World</category>
       <description>Adopted by the Council of the EU on 26 October 2026. Next step: enters into force on 17 November 2026.</description>
+    </item>
+    <item>
+      <title>EU adopts a new sanctions decision on DR Congo</title>
+      <link>https://thefollowthrough.github.io/decision/32026R2374.html</link>
+      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026R2374.html</guid>
+      <pubDate>Mon, 26 Oct 2026 12:00:00 +0000</pubDate>
+      <category>Security &amp; Defence</category>
+      <description>EU sanctions usually mean asset freezes and travel bans for the people and companies listed, and sometimes trade bans. Eastern Congo has seen heavy fighting involving the M23 armed group.</description>
     </item>
     <item>
       <title>EU makes it easier to move military equipment between its countries</title>
