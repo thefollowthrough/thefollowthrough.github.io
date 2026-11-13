@@ -59,3 +59,7 @@ Ces pages ont aussi leur image et leur titre d'aperçu : un lien partagé sur Wh
 ## La une
 - **La bannière** : la photo de l'hémicycle du jour passe derrière le titre et le menu, posés sur des bandeaux papier. Le sceau TFT est en haut à gauche (`seal.svg`).
 - **L'article de une** change chaque jour : il tourne entre Security & Defence, Migration & Rights et Trade & World, parmi les décisions récentes les plus importantes. Son titre et son résumé « de journal » sont écrits par des modèles dans `update.py` (`LEAD_FIXED` pour les lois connues, et des modèles pour l'aide militaire, les sanctions, les missions, les envoyés spéciaux et les prêts). Pour ajouter un titre, ajoute une ligne à `LEAD_FIXED`.
+
+## Légal et vie privée
+- `about.html` : présentation, méthode, sources, signalement des erreurs (via les « issues » GitHub), vie privée, licence (textes sous CC BY-NC 4.0) et mentions légales (éditeur anonyme, hébergeur GitHub). Elle est fabriquée par `pages.py`.
+- Les polices sont servies par le site lui-même (`fonts.css` et les fichiers `font-*.woff2`) : les visiteurs ne se connectent plus à Google.

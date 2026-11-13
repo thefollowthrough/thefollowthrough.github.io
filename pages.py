@@ -86,7 +86,7 @@ def img_url(p):
     return p["url"].replace("/1920px-", "/1280px-")
 
 
-def page(cfg, *, title, description, path, body, image=None, og_type="website", jsonld=None, css_v="8"):
+def page(cfg, *, title, description, path, body, image=None, og_type="website", jsonld=None, css_v="9"):
     site = cfg["site"]
     base = site["url"].rstrip("/")
     url = f"{base}/{path}" if path else f"{base}/"
@@ -111,9 +111,7 @@ def page(cfg, *, title, description, path, body, image=None, og_type="website", 
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;0,900;1,600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/fonts.css?v={css_v}">
 <link rel="stylesheet" href="/style.css?v={css_v}">
 <style>
 .static {{ max-width: 820px; margin: 0 auto; padding-bottom: 40px; }}
@@ -140,7 +138,8 @@ def page(cfg, *, title, description, path, body, image=None, og_type="website", 
 {body}
 </main>
 <footer class="foot"><div class="wrap"><div class="brand small">{e(site['name'])}</div>
-<p>An independent tracker of EU decisions, built from the EU's official journal (EUR-Lex) and Eurostat statistics. Not affiliated with the European Union.</p></div></footer>
+<p>An independent tracker of EU decisions, built from the EU's official journal (EUR-Lex) and Eurostat statistics. Not affiliated with the European Union.</p>
+<p><a href="/about.html" style="text-decoration:underline">About, sources and legal notice</a> · <a href="{ISSUES}" style="text-decoration:underline" rel="noopener">Report an error</a> · Texts: CC BY-NC 4.0</p></div></footer>
 </body>
 </html>
 """
@@ -224,6 +223,59 @@ def goals_page(data, cfg):
                 path="goals.html", body=body)
 
 
+ISSUES = "https://github.com/thefollowthrough/thefollowthrough.github.io/issues"
+
+
+def about_page(data, cfg):
+    body = f"""<div class="crumbs" style="margin-top:20px"><a href="/">Front page</a> › About</div>
+<h1 class="hl">About The Follow-Through</h1>
+<p class="dek">An independent, non-commercial tracker of EU decisions. Brussels makes the promises; we follow what happens next.</p>
+
+<h2>What we do</h2>
+<p>Every day, a program reads the EU's official journal and lists the main decisions taken in the last two years: laws passed by the European Parliament and the Council, Council regulations and directives, and foreign-policy decisions such as sanctions, missions and military aid. For each one we show its legal milestones (entry into force, deadlines), what came next (follow-up acts, reports, amendments) and, when it serves a measurable EU target, how far Europe is from that target according to official statistics.</p>
+<p>The Follow-Through is <b>not affiliated with the European Union</b> or any of its institutions, and is not funded by any of them.</p>
+
+<h2>How we score</h2>
+<p><b>Goal progress</b>: when a decision serves a numbered EU target (for example, cutting greenhouse gas emissions by 55% by 2030), the score shows how far Europe has come between a starting year and the goal, using Eurostat data. “On track” compares the pace of the last ten years with the pace needed to reach the goal in time. See <a href="/goals.html">the Scorecard</a>.</p>
+<p><b>Rollout</b>: otherwise, the score is the share of the decision's legal milestones that have already passed. It says whether a decision is in force, not whether it works.</p>
+
+<h2>Sources</h2>
+<ul class="links">
+<li><b>Decisions</b>: EUR-Lex and the Publications Office of the European Union (Cellar database). © European Union. Reused under Commission Decision 2011/833/EU on the reuse of Commission documents.</li>
+<li><b>Statistics</b>: Eurostat. © European Union.</li>
+<li><b>Photographs</b>: Wikimedia Commons, each under the free licence and author named under the photo and in the page footer.</li>
+</ul>
+
+<h2>Limits and corrections</h2>
+<p>Everything here is produced automatically, including the headlines, which are written by rules from the official titles. Mistakes are possible. This site is for general information only and is not legal advice: the official texts on EUR-Lex are the only authentic versions, and every decision page links to them.</p>
+<p><b>Spotted an error, or want a photo removed?</b> Tell us by opening an issue on our public GitHub page: <a href="{ISSUES}" rel="noopener">github.com/thefollowthrough/thefollowthrough.github.io/issues</a> (a free GitHub account is needed). We correct errors as quickly as we can.</p>
+
+<h2>Privacy</h2>
+<ul class="links">
+<li>No cookies, no advertising, no tracking or audience measurement, no account to create.</li>
+<li>Fonts are served from this site: your browser does not contact Google to display the page.</li>
+<li>The site is hosted by GitHub Pages. Like any web host, GitHub records technical data such as IP addresses in its server logs (see the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">GitHub privacy statement</a>).</li>
+<li>Photographs are loaded from Wikimedia's servers, which therefore receive your IP address (see the <a href="https://foundation.wikimedia.org/wiki/Policy:Privacy_policy" rel="noopener">Wikimedia privacy policy</a>).</li>
+<li>The “Share” button uses your device's own sharing menu or copies the link: nothing is sent to us.</li>
+</ul>
+
+<h2>Reusing our work</h2>
+<p>Our texts (headlines, summaries, analyses) are published under the <a href="https://creativecommons.org/licenses/by-nc/4.0/" rel="noopener">Creative Commons BY-NC 4.0</a> licence: you may share and adapt them for non-commercial purposes, as long as you credit “The Follow-Through” with a link to this site. Commercial use requires our permission. EU data and the photographs keep their own licences, listed above.</p>
+
+<h2 lang="fr">Mentions légales</h2>
+<div lang="fr">
+<p><b>Éditeur</b> : ce site est édité par un particulier, à titre non professionnel, qui a choisi de rester anonyme conformément à l'article 6, III, 2 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique (LCEN). Ses coordonnées ont été communiquées à l'hébergeur.</p>
+<p><b>Hébergeur</b> : GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis — <a href="https://support.github.com" rel="noopener">support.github.com</a>. Établissement européen : GitHub B.V., Prins Bernhardplein 200, 1097 JB Amsterdam, Pays-Bas.</p>
+<p><b>Contact et signalements</b> : par une « issue » sur <a href="{ISSUES}" rel="noopener">la page GitHub du site</a>. Tout contenu illicite peut aussi être signalé à l'hébergeur.</p>
+<p><b>Données personnelles</b> : le site ne dépose aucun cookie et ne collecte aucune donnée personnelle. Voir la rubrique « Privacy » ci-dessus pour les données techniques traitées par l'hébergeur et par Wikimedia.</p>
+<p><b>Propriété intellectuelle</b> : textes sous licence Creative Commons BY-NC 4.0 ; données de l'Union européenne © Union européenne ; photographies sous les licences libres indiquées pour chacune.</p>
+<p><b>Indépendance</b> : site indépendant, sans lien avec l'Union européenne ni avec ses institutions.</p>
+</div>"""
+    return page(cfg, title=f"About and legal notice | {cfg['site']['name']}",
+                description="Who we are, how we score EU decisions, our sources, how to report an error, privacy, and legal notice.",
+                path="about.html", body=body)
+
+
 def build(data=None, cfg=None):
     data = data or json.load(open(os.path.join(HERE, "data.json"), encoding="utf-8"))
     cfg = cfg or json.load(open(os.path.join(HERE, "config.json"), encoding="utf-8"))
@@ -251,8 +303,11 @@ def build(data=None, cfg=None):
             f.write(section_page(s, data, cfg))
     with open(os.path.join(HERE, "goals.html"), "w", encoding="utf-8") as f:
         f.write(goals_page(data, cfg))
+    with open(os.path.join(HERE, "about.html"), "w", encoding="utf-8") as f:
+        f.write(about_page(data, cfg))
 
-    urls = [(f"{base}/", data["updated"], "daily", "1.0"), (f"{base}/goals.html", data["updated"], "daily", "0.8")]
+    urls = [(f"{base}/", data["updated"], "daily", "1.0"), (f"{base}/goals.html", data["updated"], "daily", "0.8"),
+            (f"{base}/about.html", data["updated"], "monthly", "0.4")]
     urls += [(f"{base}/section/{s['id']}.html", data["updated"], "daily", "0.7") for s in cfg["sections"]]
     urls += [(f"{base}/decision/{d['id']}.html", d["date"], "weekly", "0.6") for d in data["decisions"] if f"{d['id']}.html" in keep]
     with open(os.path.join(HERE, "sitemap.xml"), "w", encoding="utf-8") as f:
