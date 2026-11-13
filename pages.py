@@ -86,7 +86,7 @@ def img_url(p):
     return p["url"].replace("/1920px-", "/1280px-")
 
 
-def page(cfg, *, title, description, path, body, image=None, og_type="website", jsonld=None, css_v="9"):
+def page(cfg, *, title, description, path, body, image=None, og_type="website", jsonld=None, css_v="10"):
     site = cfg["site"]
     base = site["url"].rstrip("/")
     url = f"{base}/{path}" if path else f"{base}/"
@@ -112,6 +112,7 @@ def page(cfg, *, title, description, path, body, image=None, og_type="website", 
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="alternate" type="application/rss+xml" title="{e(site['name'])}" href="/feed.xml">
 <link rel="stylesheet" href="/fonts.css?v={css_v}">
 <link rel="stylesheet" href="/style.css?v={css_v}">
 <style>
@@ -134,13 +135,13 @@ def page(cfg, *, title, description, path, body, image=None, og_type="website", 
 </head>
 <body>
 <header class="masthead"><div class="wrap"><a href="/" class="brand">{e(site['name'])}</a><div class="tagline">{e(site['tagline'])}</div></div></header>
-<nav class="sections"><div class="wrap"><a href="/">Front page</a><a href="/goals.html">Scorecard</a>{''.join(f'<a href="/section/{s["id"]}.html">{e(s["name"])}</a>' for s in cfg["sections"])}</div></nav>
+<nav class="sections"><div class="wrap"><a href="/">Front page</a><a href="/goals.html">Scorecard</a><a href="/#/search">Search</a>{''.join(f'<a href="/section/{s["id"]}.html">{e(s["name"])}</a>' for s in cfg["sections"])}</div></nav>
 <main class="wrap static">
 {body}
 </main>
 <footer class="foot"><div class="wrap"><div class="brand small">{e(site['name'])}</div>
 <p>An independent tracker of EU decisions, built from the EU's official journal (EUR-Lex) and Eurostat statistics. Not affiliated with the European Union.</p>
-<p><a href="/about.html" style="text-decoration:underline">About, sources and legal notice</a> · <a href="{ISSUES}" style="text-decoration:underline" rel="noopener">Report an error</a> · Texts: CC BY-NC 4.0</p></div></footer>
+<p><a href="/about.html" style="text-decoration:underline">About, sources and legal notice</a> · <a href="{ISSUES}" style="text-decoration:underline" rel="noopener">Report an error</a> · <a href="/feed.xml" style="text-decoration:underline">RSS feed</a> · Texts: CC BY-NC 4.0</p></div></footer>
 </body>
 </html>
 """
@@ -277,6 +278,40 @@ def about_page(data, cfg):
                 path="about.html", body=body)
 
 
+def rss(data, cfg, today, limit=60):
+    """feed.xml: the latest decisions as an RSS 2.0 feed (routine foreign-policy updates left out)."""
+    from email.utils import format_datetime
+    from datetime import datetime, timezone
+    base = cfg["site"]["url"].rstrip("/")
+    secs = {s["id"]: s["name"] for s in cfg["sections"]}
+    pub = lambda s: format_datetime(datetime.fromisoformat(s[:10] + "T12:00:00").replace(tzinfo=timezone.utc))
+    items = []
+    for d in [x for x in data["decisions"] if x["kind"] != "Foreign policy update"][:limit]:
+        url = f"{base}/decision/{d['id']}.html"
+        items.append(f"""    <item>
+      <title>{e(d.get('lead_hl') or d['headline'])}</title>
+      <link>{e(url)}</link>
+      <guid isPermaLink="true">{e(url)}</guid>
+      <pubDate>{pub(d['date'])}</pubDate>
+      <category>{e(secs.get(d['section'], ''))}</category>
+      <description>{e(d.get('lead_dek') or dek(d, today))}</description>
+    </item>""")
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>{e(cfg['site']['name'])}</title>
+    <link>{base}/</link>
+    <atom:link href="{base}/feed.xml" rel="self" type="application/rss+xml"/>
+    <description>{e(cfg['site']['tagline'])} New EU decisions, and whether they deliver.</description>
+    <language>en</language>
+    <lastBuildDate>{pub(data['updated'])}</lastBuildDate>
+    <image><url>{base}/icon-192.png</url><title>{e(cfg['site']['name'])}</title><link>{base}/</link></image>
+{chr(10).join(items)}
+  </channel>
+</rss>
+"""
+
+
 def build(data=None, cfg=None):
     data = data or json.load(open(os.path.join(HERE, "data.json"), encoding="utf-8"))
     cfg = cfg or json.load(open(os.path.join(HERE, "config.json"), encoding="utf-8"))
@@ -315,6 +350,8 @@ def build(data=None, cfg=None):
         f.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n')
         f.write("".join(f"  <url><loc>{e(u)}</loc><lastmod>{m}</lastmod><changefreq>{c}</changefreq><priority>{p}</priority></url>\n" for u, m, c, p in urls))
         f.write("</urlset>\n")
+    with open(os.path.join(HERE, "feed.xml"), "w", encoding="utf-8") as f:
+        f.write(rss(data, cfg, today))
     with open(os.path.join(HERE, "robots.txt"), "w", encoding="utf-8") as f:
         f.write(f"User-agent: *\nAllow: /\n\nSitemap: {base}/sitemap.xml\n")
     print(f"Pages: {len(keep)} decisions, {len(cfg['sections'])} sections, sitemap with {len(urls)} URLs")

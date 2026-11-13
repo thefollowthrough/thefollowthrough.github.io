@@ -134,10 +134,11 @@ function route() {
   usedPhotos.clear();
   const hp = heroPhoto(); if (hp) usedPhotos.set(hp.url, hp);
   const h = location.hash.replace(/^#\/?/, '').split('/');
-  document.querySelectorAll('nav.sections a').forEach(a => a.classList.toggle('on', (h[0] === 'section' && a.dataset.id === h[1]) || (h[0] === 'goals' && a.dataset.id === 'goals')));
+  document.querySelectorAll('nav.sections a').forEach(a => a.classList.toggle('on', (h[0] === 'section' && a.dataset.id === h[1]) || (h[0] === 'goals' && a.dataset.id === 'goals') || (h[0] === 'search' && a.dataset.id === 'search')));
   if (h[0] === 'section' && SEC[h[1]]) renderSection(SEC[h[1]]);
   else if (h[0] === 'decision' && BY_ID[decodeURIComponent(h[1])]) renderDecision(BY_ID[decodeURIComponent(h[1])]);
   else if (h[0] === 'goals') renderGoals();
+  else if (h[0] === 'search') renderSearch(decodeURIComponent(h.slice(1).join('/') || ''));
   else renderFront();
   renderCredits();
   window.scrollTo(0, 0);
@@ -281,6 +282,56 @@ function renderGoals() {
     ${bySec.map(([s, ts]) => `<div class="month"><a href="#/section/${s.id}">${esc(s.name)}</a></div>
       <div class="goals">${ts.map(t => scoreCard(t)).join('')}</div>`).join('')}
     <p class="muted" style="font-size:14px;margin-top:24px">“% of the way” compares the latest figure with the starting year shown on each card. “Needs to move × faster” compares the pace of the last ten years with the pace needed to reach the goal by 2030.</p>`;
+}
+
+// ---------------------------------------------------------------- search page (#/search/<words>)
+const norm = t => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+let SEARCH_INDEX = null;
+function searchIndex() {
+  if (!SEARCH_INDEX) SEARCH_INDEX = D.decisions.map(d => ({ d,
+    head: norm([d.headline, d.lead_hl].join(' ')),
+    all: norm([d.headline, d.lead_hl, d.title, d.ref, d.id, d.kind, SEC[d.section].name, d.topic, d.summary].join(' ')) }));
+  return SEARCH_INDEX;
+}
+function searchFor(q) {
+  const words = norm(q).split(/[^a-z0-9]+/).filter(w => w.length > 1);
+  if (!words.length) return null;
+  return searchIndex()
+    .filter(x => words.every(w => x.all.includes(w)))
+    .map(x => ({ d: x.d, s: words.reduce((n, w) => n + (x.head.includes(w) ? 3 : 1), 0) }))
+    .sort((a, b) => b.s - a.s || b.d.date.localeCompare(a.d.date))
+    .map(x => x.d);
+}
+function renderSearch(q) {
+  document.title = `Search · ${D.site.name}`;
+  $app.innerHTML = `
+    <div class="crumbs"><a href="#/">Front page</a> › Search</div>
+    <div class="section-title"><h2>Search ${D.decisions.length} EU decisions</h2></div>
+    <input id="q" class="search-box" type="search" placeholder="Try: Ukraine sanctions, asylum, steel, Mauritania, 2026/2332…" value="${esc(q)}" autocomplete="off" aria-label="Search decisions">
+    <p class="muted" id="count" style="font:500 14px var(--sans);margin:10px 0 0"></p>
+    <div id="results"></div>`;
+  const input = document.getElementById('q');
+  const show = () => {
+    const res = searchFor(input.value);
+    const box = document.getElementById('results'), count = document.getElementById('count');
+    if (!res) { count.textContent = 'Type a country, a topic, a word from a headline or an official reference.'; box.innerHTML = ''; return; }
+    count.textContent = res.length ? `${res.length} decision${res.length > 1 ? 's' : ''} found${res.length > 100 ? ', showing the 100 most relevant' : ''}` : 'No decision found. Try another word.';
+    box.innerHTML = res.slice(0, 100).map(d => {
+      const sc = score(d), dt = new Date(d.date + 'T12:00');
+      return `<article class="row">
+        <div class="day">${dt.getDate()}<small>${dt.toLocaleDateString('en-GB', { month: 'short', year: '2-digit' })}</small></div>
+        <div><span class="kicker">${esc(SEC[d.section].kicker)}<span class="k2">${esc(d.kind)} · ${esc(d.ref)}</span></span>
+          <a href="#/decision/${encodeURIComponent(d.id)}"><h2 class="hl">${esc(d.lead_hl || d.headline)}</h2></a></div>
+        <div class="side">${sc.label}<b>${sc.verdict} · ${sc.pct}%</b><div class="mini ${sc.cls}"><span style="width:${sc.pct}%"></span></div></div>
+      </article>`;
+    }).join('');
+  };
+  input.addEventListener('input', () => {
+    show();
+    history.replaceState(null, '', '#/search/' + encodeURIComponent(input.value.trim()));   // shareable, without filling the history
+  });
+  show();
+  input.focus();
 }
 
 // ---------------------------------------------------------------- section page
@@ -571,7 +622,7 @@ fetch('data.json').then(r => r.json()).then(data => {
   document.getElementById('today').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   document.getElementById('tracking').textContent = `Tracking ${D.decisions.length} EU decisions since ${dShort(D.since)}`;
   document.getElementById('updated').textContent = `Updated ${dShort(D.updated)} from EUR-Lex & Eurostat`;
-  document.getElementById('nav').innerHTML = `<div class="wrap"><a href="#/">Front page</a><a href="#/goals" data-id="goals">Scorecard</a>${D.sections.map(s => `<a href="#/section/${s.id}" data-id="${s.id}">${esc(s.name)}</a>`).join('')}</div>`;
+  document.getElementById('nav').innerHTML = `<div class="wrap"><a href="#/">Front page</a><a href="#/goals" data-id="goals">Scorecard</a><a href="#/search" data-id="search">Search</a>${D.sections.map(s => `<a href="#/section/${s.id}" data-id="${s.id}">${esc(s.name)}</a>`).join('')}</div>`;
   window.addEventListener('hashchange', route);
   route();
 }).catch(e => { $app.innerHTML = `<p class="loading">Could not load data.json (${esc(e.message)}). Serve this folder with a local web server.</p>`; });

@@ -223,3 +223,7 @@ ul.plain { list-style: none; margin: 0; padding: 0; }
 
 .meta a.share { color: var(--eu); font-weight: 700; }
 .meta a.share:hover { text-decoration: underline; }
+
+.search-box { width: 100%; font: 400 20px/1.3 var(--serif); padding: 14px 16px; border: 2px solid var(--ink); border-radius: 4px; background: #fff; color: var(--ink); margin-top: 6px; }
+.search-box:focus { outline: 3px solid var(--gold); outline-offset: 1px; }
+.foot .rss { display: inline-flex; align-items: center; gap: 6px; }

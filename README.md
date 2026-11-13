@@ -63,3 +63,7 @@ Ces pages ont aussi leur image et leur titre d'aperçu : un lien partagé sur Wh
 ## Légal et vie privée
 - `about.html` : présentation, méthode, sources, signalement des erreurs (via les « issues » GitHub), vie privée, licence (textes sous CC BY-NC 4.0) et mentions légales (éditeur anonyme, hébergeur GitHub). Elle est fabriquée par `pages.py`.
 - Les polices sont servies par le site lui-même (`fonts.css` et les fichiers `font-*.woff2`) : les visiteurs ne se connectent plus à Google.
+
+## Recherche et flux RSS
+- **Recherche** (`#/search`) : dans le menu. Elle cherche dans les titres, les titres officiels, les références (par ex. `2026/2332`), les rubriques et les sujets, sans tenir compte des accents. L'adresse de la recherche peut être partagée (par ex. `#/search/iran`).
+- **Flux RSS** (`feed.xml`) : les 60 dernières décisions (sans les mises à jour de routine), refait chaque matin par `pages.py`. Lien en bas de page.
