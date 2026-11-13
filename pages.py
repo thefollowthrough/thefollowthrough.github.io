@@ -92,7 +92,10 @@ def img_url(p):
     return p["url"].replace("/1920px-", "/1280px-")
 
 
-def page(cfg, *, title, description, path, body, image=None, og_type="website", jsonld=None, css_v="13"):
+HERO = None   # hemicycle photo of the day, set in build()
+
+
+def page(cfg, *, title, description, path, body, image=None, og_type="website", jsonld=None, css_v="14"):
     site = cfg["site"]
     base = site["url"].rstrip("/")
     url = f"{base}/{path}" if path else f"{base}/"
@@ -140,9 +143,13 @@ def page(cfg, *, title, description, path, body, image=None, og_type="website", 
 {ld}
 </head>
 <body>
-<header class="masthead"><div class="wrap"><a href="/" class="brand">{e(site['name'])}</a><div class="tagline">{e(site['tagline'])}</div></div></header>
-<nav class="sections"><div class="wrap"><a href="/">Front page</a><a href="/goals.html">Scorecard</a><a href="/coming.html">Coming up</a><a href="/#/search">Search</a>{''.join(f'<a href="/section/{s["id"]}.html">{e(s["name"])}</a>' for s in cfg["sections"])}</div></nav>
-<main class="wrap static">
+<header class="hero" style="background-image:url('{e(HERO["url"]) if HERO else ""}')">
+  <a href="/" class="seal" aria-label="The Follow-Through, front page"><img src="/seal.svg" alt="TFT seal"></a>
+  <div class="plate title-plate"><a href="/" class="brand">{e(site['name'])}</a><div class="tagline">{e(site['tagline'])}</div></div>
+  <div class="plate nav-plate"><nav class="sections"><div class="wrap"><a href="/">Front page</a><a href="/goals.html">Scorecard</a><a href="/coming.html">Coming up</a><a href="/#/search">Search</a>{''.join(f'<a href="/section/{s["id"]}.html">{e(s["name"])}</a>' for s in cfg["sections"])}</div></nav></div>
+  {f'<div class="hero-credit">Photo: {e(HERO["author"])} / <a href="{e(HERO["source"])}" rel="noopener">{e(HERO["licence"])}</a></div>' if HERO else ""}
+</header>
+<main class="wrap static" style="padding-top:34px">
 {body}
 </main>
 <footer class="foot"><div class="wrap"><div class="brand small">{e(site['name'])}</div>
@@ -176,7 +183,7 @@ def decision_page(d, data, cfg, by_topic, today):
     photo_html = (f'<img src="{e(img_url(p))}" alt="{e(p["title"])}" style="aspect-ratio:16/9;margin:18px 0 0">'
                   f'<div class="caption">Photo: {e(p["author"])} / <a href="{e(p["source"])}" rel="noopener">{e(p["licence"])}</a>, via Wikimedia Commons</div>') if p else ""
     base = cfg["site"]["url"].rstrip("/")
-    body = f"""<div class="crumbs" style="margin-top:20px"><a href="/">Front page</a> › <a href="/section/{sec['id']}.html">{e(sec['name'])}</a></div>
+    body = f"""<div class="crumbs"><a href="/">Front page</a> › <a href="/section/{sec['id']}.html">{e(sec['name'])}</a></div>
 <span class="kicker">{e(sec['name'])}<span class="k2">{e(d['kind'])} · {e(d['ref'])}</span></span>
 <h1 class="hl">{e(d['headline'])}</h1>
 <p class="dek" style="font-size:19px">{e(desc)}</p>
@@ -209,7 +216,7 @@ def section_page(s, data, cfg):
             items.append(f"<h2>{m}</h2>")
             month = m
         items.append(f'<a href="/decision/{d["id"]}.html"><span class="kicker">{e(dlong(d["date"]))}<span class="k2">{e(d["kind"])}</span></span><div class="hl">{e(d["headline"])}</div></a>')
-    body = f"""<div class="crumbs" style="margin-top:20px"><a href="/">Front page</a> › {e(s['name'])}</div>
+    body = f"""<div class="crumbs"><a href="/">Front page</a> › {e(s['name'])}</div>
 <h1 class="hl">{e(s['name'])}</h1>
 <p class="dek">{e(s.get('about', ''))}</p>
 <p class="muted" style="font:500 14px var(--sans)">Every decision since {dlong(s.get('since') or data['since'])}: {len(lst)} in all, newest first. <a href="/#/section/{s['id']}">Open the interactive version →</a></p>
@@ -223,7 +230,7 @@ def goals_page(data, cfg):
     cards = []
     for t in data["targets"]:
         cards.append(f"<li><span><b>{e(t['title'])}</b><br><small>Set by: {e(t.get('basis', ''))}</small></span><b>{t['progress']}% of the way</b></li>")
-    body = f"""<div class="crumbs" style="margin-top:20px"><a href="/">Front page</a> › The Scorecard</div>
+    body = f"""<div class="crumbs"><a href="/">Front page</a> › The Scorecard</div>
 <h1 class="hl">The Scorecard</h1>
 <p class="dek">The EU has set itself numbers to hit by 2030. We check each one against the latest official statistics from Eurostat, every day. <a href="/#/goals">See the charts →</a></p>
 <ul class="facts">{''.join(cards)}</ul>"""
@@ -242,7 +249,7 @@ def coming_page(data, cfg):
         f'<div class="hl">{e(x["headline"])}</div>'
         + (f'<span class="muted" style="font:500 13px var(--sans)">Parliament votes on {dlong(x["next_vote"])}</span>' if x.get("next_vote") else "")
         + "</a>" for x in data.get("coming", []))
-    body = f"""<div class="crumbs" style="margin-top:20px"><a href="/">Front page</a> › Coming up</div>
+    body = f"""<div class="crumbs"><a href="/">Front page</a> › Coming up</div>
 <h1 class="hl">Coming up: EU laws in the works</h1>
 <p class="dek">Laws still being negotiated between the European Parliament and EU governments, how far each one has got, and the next vote. <a href="/#/coming">Open the interactive version →</a></p>
 <div class="row-list">{items}</div>"""
@@ -252,7 +259,7 @@ def coming_page(data, cfg):
 
 
 def about_page(data, cfg):
-    body = f"""<div class="crumbs" style="margin-top:20px"><a href="/">Front page</a> › About</div>
+    body = f"""<div class="crumbs"><a href="/">Front page</a> › About</div>
 <h1 class="hl">About The Follow-Through</h1>
 <p class="dek">An independent, non-commercial tracker of EU decisions and of their implementation, based on official sources.</p>
 
@@ -340,6 +347,9 @@ def build(data=None, cfg=None):
     cfg = cfg or json.load(open(os.path.join(HERE, "config.json"), encoding="utf-8"))
     today = date.today().isoformat()
     base = cfg["site"]["url"].rstrip("/")
+    global HERO
+    heads = data.get("photos", {}).get("masthead") or []
+    HERO = heads[(date.today() - date(1970, 1, 1)).days % len(heads)] if heads else None
     by_topic = {}
     for d in data["decisions"]:
         by_topic.setdefault(d.get("topic"), []).append(d)
