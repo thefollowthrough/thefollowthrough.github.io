@@ -86,7 +86,7 @@ def img_url(p):
     return p["url"].replace("/1920px-", "/1280px-")
 
 
-def page(cfg, *, title, description, path, body, image=None, og_type="website", jsonld=None, css_v="7"):
+def page(cfg, *, title, description, path, body, image=None, og_type="website", jsonld=None, css_v="8"):
     site = cfg["site"]
     base = site["url"].rstrip("/")
     url = f"{base}/{path}" if path else f"{base}/"
@@ -107,8 +107,9 @@ def page(cfg, *, title, description, path, body, image=None, og_type="website", 
 <meta property="og:url" content="{e(url)}">
 <meta property="og:image" content="{e(image)}">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

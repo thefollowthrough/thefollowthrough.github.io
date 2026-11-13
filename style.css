@@ -36,7 +36,7 @@ nav.sections { border-top: 3px double var(--rule-strong); border-bottom: 1px sol
 nav.sections .wrap { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; padding-top: 2px; padding-bottom: 2px; }
 nav.sections a { font: 600 12.5px/1 var(--sans); text-transform: uppercase; letter-spacing: .06em; padding: 11px 10px; border-bottom: 3px solid transparent; }
 nav.sections a:hover, nav.sections a.on { border-bottom-color: var(--eu); color: var(--eu); }
-main { padding-top: 26px; padding-bottom: 60px; min-height: 60vh; }
+main, main.wrap { padding-top: 34px; padding-bottom: 60px; min-height: 60vh; }   /* main.wrap: .wrap alone would cancel the gap under the banner */
 .loading { text-align: center; color: var(--muted); padding: 80px 0; }
 
 /* ---------- type ---------- */
