@@ -96,7 +96,8 @@ MONTHS = "January|February|March|April|May|June|July|August|September|October|No
 
 
 def subject_of(title):
-    t = re.sub(r"\s*\(Text with EEA relevance\)\s*", " ", title).strip().rstrip(".")
+    t = re.sub(r"\s+", " ", title.replace("\xa0", " "))   # older titles use non-breaking spaces
+    t = re.sub(r"\s*\(Text with EEA relevance\)\s*", " ", t).strip().rstrip(".")
     m = re.search(rf"\b\d{{1,2}} (?:{MONTHS}) \d{{4}}\s+(.*)$", t)
     return m.group(1) if m else t
 
@@ -531,15 +532,99 @@ def target_data(cfg_targets):
     return out
 
 
+# ---------------------------------------------------------------- coming up (European Parliament open data)
+EP_API = "https://data.europarl.europa.eu/api/v2/procedures"
+# the five steps a law goes through after the Commission proposes it (ordinary legislative procedure)
+STAGES = ["Proposed by the Commission", "In committee at the Parliament", "Parliament has voted its position",
+          "Negotiating with EU governments", "Deal reached, final votes to come"]
+STAGE_OF = {"REFERRAL": 0, "COMMITTEE_TABLING_AMENDMENT": 1, "COMMITTEE_ADOPTING_OPINION": 1, "COMMITTEE_TABLING_OPINION": 1,
+            "COMMITTEE_ADOPTING_REPORT": 1, "COMMITTEE_TABLING_REPORT": 1, "TABLING_PLENARY": 1, "PLENARY_DEBATE": 1,
+            "PLENARY_VOTE": 2, "PLENARY_ADOPT_POSITION": 2, "PLENARY_AMEND": 2, "PLENARY_AMEND_PROPOSAL": 2,
+            "PLENARY_REFER_COMMITTEE_INTERINSTITUTIONAL_NEGOTIATIONS": 3, "PLENARY_ENDORSE_COMMITTEE_INTERINSTITUTIONAL_NEGOTIATIONS": 3,
+            "INTERINSTITUTIONAL_NEGOTIATION": 3, "COMMITTEE_APPROVE_PROVISIONAL_AGREEMENT": 4, "PLENARY_AMEND_COUNCIL_POSITION": 4}
+
+
+# lead committee of the European Parliament -> our section
+COMMITTEE_SECTION = {"ENVI": "climate", "ITRE": "digital", "ECON": "economy", "BUDG": "economy", "CONT": "economy",
+                     "JURI": "justice", "LIBE": "justice", "AFCO": "justice", "PETI": "justice", "IMCO": "health", "SANT": "health",
+                     "TRAN": "transport", "AGRI": "farming", "PECH": "farming", "EMPL": "social", "REGI": "social",
+                     "CULT": "social", "FEMM": "social", "AFET": "world", "INTA": "world", "DEVE": "world", "DROI": "world",
+                     "SEDE": "defence"}
+
+
+def tail(v):
+    """last part of an EP code like 'def/ep-activities/PLENARY_VOTE' (some fields come as lists)."""
+    v = v[0] if isinstance(v, list) and v else v
+    return str(v or "").rsplit("/", 1)[-1]
+
+
+def ep_json(url):
+    return http_json(url, headers={"Accept": "application/ld+json", "User-Agent": "TheFollowThrough/0.3 (EU decisions tracker)"}, tries=3)
+
+
+def parse_procedure(p, cfg):
+    """One EP procedure -> a 'coming up' item, or None if it is already law, empty or stalled."""
+    pid = p.get("process_id")
+    events = sorted((str(a.get("activity_date", "")), tail(a.get("had_activity_type"))) for a in p.get("consists_of", []))
+    kinds = {k for _, k in events}
+    if kinds & {"SIGNATURE", "PUBLICATION_OFFICIAL_JOURNAL"} or not events:
+        return None   # already law (it shows up in the decisions) or nothing happened yet
+    title = (p.get("process_title") or {}).get("en")
+    if not title:
+        return None
+    stage = max((STAGE_OF.get(k, 0) for _, k in events), default=0)
+    last = events[-1][0]
+    if stage < 4 and last < (TODAY - timedelta(days=730)).isoformat():
+        return None   # stalled for two years
+    nxt = sorted(str(a.get("activity_date", "")) for a in p.get("was_scheduled_in", [])
+                 if str(a.get("activity_date", "")) >= TODAY.isoformat() and tail(a.get("had_activity_type")) == "PLENARY_VOTE")
+    ref = p.get("label", pid)
+    lead = [tail(x.get("participation_in_name_of")) for x in p.get("had_participation", [])
+            if tail(x.get("participation_role")) == "RAPPORTEUR" and x.get("participation_in_name_of")]
+    section = next((COMMITTEE_SECTION[c] for c in lead if c in COMMITTEE_SECTION), None) or classify(title, [], cfg)[0]
+    hl = headline(title)
+    return {"id": pid, "ref": ref, "title": title, "headline": hl, "section": section,
+            "stage": stage, "stage_label": STAGES[stage], "started": events[0][0], "last": last,
+            "next_vote": nxt[0] if nxt else None, "topic": topic_of(hl, title, cfg),
+            "url": f"https://oeil.secure.europarl.europa.eu/oeil/en/procedure-file?reference={urllib.parse.quote(ref)}"}
+
+
+def fetch_coming_up(cfg, first_year):
+    """Laws still being negotiated (ordinary legislative procedure, not yet signed), with their stage and next vote."""
+    out, seen = [], set()
+    for year in range(first_year, TODAY.year + 1):
+        ids = [x["process_id"] for x in ep_json(f"{EP_API}?process-type=COD&year={year}&format=application%2Fld%2Bjson&limit=500")["data"]]
+        for pid in ids:
+            if pid in seen:
+                continue
+            seen.add(pid)
+            try:
+                item = parse_procedure(ep_json(f"{EP_API}/{pid}?format=application%2Fld%2Bjson&language=en")["data"][0], cfg)
+            except Exception as e:
+                print("  skipped", pid, e)
+                item = None
+            if item:
+                out.append(item)
+            time.sleep(0.35)   # the Parliament's API limits the request rate
+    out.sort(key=lambda x: (x["next_vote"] is None, x["next_vote"] or "", -x["stage"], x["last"]))
+    return out
+
+
 # ---------------------------------------------------------------- main
 def main():
     cfg = json.load(open(os.path.join(HERE, "config.json"), encoding="utf-8"))
-    start = TODAY.replace(year=TODAY.year - cfg["site"]["years_back"])
+    start = TODAY.replace(year=TODAY.year - cfg["site"]["years_back"])   # default window (2 years)
+    # sections can go further back ("since" in config.json), so that small sections are not nearly empty.
+    # Foreign-policy decisions (sanctions, missions, military aid) always keep the default window.
+    for s in cfg["sections"]:
+        s["since"] = s.get("since") or start.isoformat()
+    since = {s["id"]: s["since"] for s in cfg["sections"]}
+    first = min(date.fromisoformat(v) for v in since.values())
     cache_path = os.path.join(HERE, "ai_cache.json")
     cache = json.load(open(cache_path)) if os.path.exists(cache_path) else {}
 
-    print("EUR-Lex: decisions since", start)
-    rows, cur = [], start
+    print("EUR-Lex: decisions since", first)
+    rows, cur = [], first
     while cur <= TODAY:
         nxt = min(cur + timedelta(days=120), TODAY + timedelta(days=1))
         part = fetch_decisions(cur.isoformat(), nxt.isoformat())
@@ -569,7 +654,8 @@ def main():
         d["topic"] = topic_of(d["headline"], d["title"], cfg)
         if d["section"] in ("defence", "justice", "world"):
             d["lead_hl"], d["lead_dek"] = lead_text(d)
-        if d["section"]:
+        if d["section"] and d["date"] >= since[d["section"]] and not (
+                d["kind"].startswith("Foreign policy") and d["date"] < start.isoformat()):
             decisions.append(d)
     json.dump(cache, open(cache_path, "w"), ensure_ascii=False, indent=1)
 
@@ -591,6 +677,10 @@ def main():
                 x["label"] = headline(x["title"]) if x["title"] else x["id"]
                 x["ref"] = reference(x["title"]) if x["title"] else x["id"]
                 x["type"] = "act" if x["id"].startswith("3") else "document"
+                x.pop("title", None)   # the site shows the short label; dropping the long title keeps data.json light
+        d["links_n"] = {k: len(v) for k, v in d["links"].items()}   # true counts, even when the lists are cut
+        for k in d["links"]:
+            d["links"][k] = d["links"][k][:40]
 
     print("Eurostat: targets")
     tdata = target_data(cfg["targets"])
@@ -607,10 +697,18 @@ def main():
                 hits.append((-n, i, t["id"]))
         d["targets"] = [x[2] for x in sorted(hits)]
 
+    print("European Parliament: laws in negotiation")
+    try:
+        coming = fetch_coming_up(cfg, TODAY.year - 3)
+        print(f"  {len(coming)} laws in negotiation")
+    except Exception as e:   # if the Parliament's site is down, keep yesterday's list
+        print("  coming up skipped:", e)
+        old = os.path.join(HERE, "data.json")
+        coming = json.load(open(old)).get("coming", []) if os.path.exists(old) else []
     photos = json.load(open(os.path.join(HERE, "photos.json"))) if os.path.exists(os.path.join(HERE, "photos.json")) else {}
-    out = {"site": cfg["site"], "updated": TODAY.isoformat(), "since": start.isoformat(),
-           "sections": [{k: s[k] for k in ("id", "name", "kicker")} for s in cfg["sections"]],
-           "targets": targets, "decisions": decisions, "photos": photos}
+    out = {"site": cfg["site"], "updated": TODAY.isoformat(), "since": first.isoformat(),
+           "sections": [{k: s[k] for k in ("id", "name", "kicker", "about", "since") if k in s} for s in cfg["sections"]],
+           "targets": targets, "decisions": decisions, "photos": photos, "coming": coming}
     with open(os.path.join(HERE, "data.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
     try:   # readable pages for Google and for sharing (decision/, section/, sitemap.xml)

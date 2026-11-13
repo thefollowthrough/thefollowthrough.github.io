@@ -75,6 +75,7 @@ const pill = d => { const s = score(d); return `<span class="pill ${s.cls}"><i><
 const isNew = d => daysAgo(d.date) <= 14;
 const kindTag = d => `<span class="tag ${d.kind === 'EU law' ? 'law' : ''}">${esc(d.kind)}</span>`;
 const WHO = { 'EU law': 'Passed by the European Parliament and the Council', 'Council act': 'Adopted by the Council of the EU', 'Foreign policy decision': 'Foreign-policy decision by EU governments', 'Foreign policy update': 'EU governments changed an earlier foreign-policy decision' };
+const nl = (d, k) => (d.links_n && d.links_n[k] != null) ? d.links_n[k] : d.links[k].length;   // true number of linked acts
 function dek(d) {
   if (d.summary) return d.summary;
   const ms = milestones(d), next = ms.find(m => m.date > TODAY), left = ms.filter(m => m.date > TODAY).length;
@@ -85,7 +86,7 @@ function dek(d) {
   }
   if (next) s += ` Next step: ${next.what.split(' (')[0].toLowerCase()} on ${dLong(next.date)}${left > 1 ? `, with ${left - 1} more milestone${left > 2 ? 's' : ''} after that` : ''}.`;
   else if (d.in_force[0]) s += ` In force since ${dLong(d.in_force[0])}.`;
-  if (d.links.based_on.length) s += ` ${d.links.based_on.length} follow-up action${d.links.based_on.length > 1 ? 's' : ''} so far.`;
+  if (nl(d, 'based_on')) s += ` ${nl(d, 'based_on')} follow-up action${nl(d, 'based_on') > 1 ? 's' : ''} so far.`;
   return s;
 }
 function officialDek(d) {
@@ -134,10 +135,11 @@ function route() {
   usedPhotos.clear();
   const hp = heroPhoto(); if (hp) usedPhotos.set(hp.url, hp);
   const h = location.hash.replace(/^#\/?/, '').split('/');
-  document.querySelectorAll('nav.sections a').forEach(a => a.classList.toggle('on', (h[0] === 'section' && a.dataset.id === h[1]) || (h[0] === 'goals' && a.dataset.id === 'goals') || (h[0] === 'search' && a.dataset.id === 'search')));
+  document.querySelectorAll('nav.sections a').forEach(a => a.classList.toggle('on', (h[0] === 'section' && a.dataset.id === h[1]) || (h[0] === 'goals' && a.dataset.id === 'goals') || (h[0] === 'coming' && a.dataset.id === 'coming') || (h[0] === 'search' && a.dataset.id === 'search')));
   if (h[0] === 'section' && SEC[h[1]]) renderSection(SEC[h[1]]);
   else if (h[0] === 'decision' && BY_ID[decodeURIComponent(h[1])]) renderDecision(BY_ID[decodeURIComponent(h[1])]);
   else if (h[0] === 'goals') renderGoals();
+  else if (h[0] === 'coming') renderComing(h[1]);
   else if (h[0] === 'search') renderSearch(decodeURIComponent(h.slice(1).join('/') || ''));
   else renderFront();
   renderCredits();
@@ -284,6 +286,35 @@ function renderGoals() {
     <p class="muted" style="font-size:14px;margin-top:24px">“% of the way” compares the latest figure with the starting year shown on each card. “Needs to move × faster” compares the pace of the last ten years with the pace needed to reach the goal by 2030.</p>`;
 }
 
+// ---------------------------------------------------------------- coming up (#/coming, #/coming/<section>)
+const STEPS = ['Proposed', 'Committee', 'Parliament vote', 'Negotiation', 'Deal'];
+const comingHl = x => x.headline.replace(/^Rules rewritten: /, 'Rule change: ').replace(/^New EU law: /, 'New law on ');
+function renderComing(sec) {
+  document.title = `Coming up · ${D.site.name}`;
+  const all = D.coming || [];
+  const list = all.filter(x => !sec || x.section === sec);
+  const soon = list.filter(x => x.next_vote);
+  const secs = D.sections.filter(s => all.some(x => x.section === s.id));
+  const item = x => {
+    const dots = STEPS.map((n, i) => `<span class="step ${i <= x.stage ? 'done' : ''}" title="${n}"><i></i><em>${n}</em></span>`).join('');
+    return `<article class="row coming">
+      <div class="day">${x.next_vote ? `${new Date(x.next_vote + 'T12:00').getDate()}<small>${new Date(x.next_vote + 'T12:00').toLocaleDateString('en-GB', { month: 'short' })}</small>` : '<small>no vote<br>set</small>'}</div>
+      <div><span class="kicker">${x.section ? esc(SEC[x.section].kicker) : 'EU law'}<span class="k2">${esc(x.ref)}</span></span>
+        <a href="${esc(x.url)}" target="_blank" rel="noopener"><h2 class="hl">${esc(comingHl(x))}</h2></a>
+        <div class="steps">${dots}</div>
+        <p class="dek" style="font-size:15px;margin-top:8px">${esc(x.stage_label)}. Last step on ${dLong(x.last)}${x.next_vote ? `. <b>Parliament votes on ${dLong(x.next_vote)}.</b>` : '.'}</p></div>
+    </article>`;
+  };
+  $app.innerHTML = `
+    <div class="crumbs"><a href="#/">Front page</a> › Coming up</div>
+    <div class="section-title"><h2>Coming up</h2></div>
+    <p class="dek" style="max-width:760px">Laws still being negotiated between the European Parliament and EU governments, how far each one has got, and the next vote on each. Once a law is signed, it moves to its section as a decision.</p>
+    <div class="filters" id="cfilters"><a class="${sec ? '' : 'on'}" href="#/coming">All (${all.length})</a>${secs.map(s => `<a class="${sec === s.id ? 'on' : ''}" href="#/coming/${s.id}">${esc(s.name)} (${all.filter(x => x.section === s.id).length})</a>`).join('')}</div>
+    ${soon.length ? `<div class="month">Votes coming up in Parliament</div>${soon.map(item).join('')}` : ''}
+    <div class="month">Still in the works</div>${list.filter(x => !x.next_vote).sort((a, b) => b.stage - a.stage || b.last.localeCompare(a.last)).map(item).join('') || '<p class="muted">Nothing in the works here right now.</p>'}
+    <p class="muted" style="font-size:14px;margin-top:24px">Source: European Parliament open data (Legislative Observatory). Each headline links to the official procedure file.</p>`;
+}
+
 // ---------------------------------------------------------------- search page (#/search/<words>)
 const norm = t => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 let SEARCH_INDEX = null;
@@ -340,17 +371,18 @@ function renderSection(s) {
   const list = D.decisions.filter(d => d.section === s.id);
   const p = photo(s.id, 'hero');
   const inEffect = list.filter(d => score(d).pct >= 100).length;
-  const follow = list.reduce((n, d) => n + d.links.based_on.length + d.links.amended_by.length, 0);
+  const follow = list.reduce((n, d) => n + nl(d, 'based_on') + nl(d, 'amended_by'), 0);
   const goals = D.targets.filter(t => t.section === s.id);
   $app.innerHTML = `
     <div class="crumbs"><a href="#/">Front page</a> › ${esc(s.name)}</div>
     <section class="sec-hero">${img(p, s.name)}
       <div class="over"><span class="kicker">${esc(s.kicker)}</span><h1>${esc(s.name)}</h1>
-      <p>Every ${esc(s.name.toLowerCase())} decision the EU has taken since ${dLong(D.since)}, newest first. New ones appear here automatically.</p></div>
+      <p>${esc(s.about || '')}</p>
+      <p class="since">Every decision since ${dLong(s.since || D.since)}, newest first. New ones appear here automatically.</p></div>
     </section>
     ${credit(p)}
     <div class="sec-stats" style="margin-top:14px">
-      <div><strong>${list.length}</strong>decisions in two years</div>
+      <div><strong>${list.length}</strong>decisions since ${new Date((s.since || D.since) + 'T12:00').getFullYear()}</div>
       <div><strong>${inEffect}</strong>fully in effect</div>
       <div><strong>${list.length - inEffect}</strong>still rolling out</div>
       <div><strong>${follow}</strong>follow-up acts and reports</div>
@@ -397,7 +429,7 @@ function renderDecision(d) {
   document.title = `${d.headline} · ${D.site.name}`;
   const s = SEC[d.section], sc = score(d), ms = milestones(d), p = photoFor(d);
   const next = ms.find(m => m.date > TODAY);
-  const nFollow = d.links.based_on.length;
+  const nFollow = nl(d, 'based_on');
   const related = D.decisions.filter(x => x.section === d.section && x.id !== d.id).sort((a, b) => weight(b) - weight(a)).slice(0, 4);
 
   $app.innerHTML = `
@@ -421,7 +453,7 @@ function renderDecision(d) {
         <div><dt>In force</dt><dd>${d.in_force[0] ? dShort(d.in_force[0]) : 'n/a'}</dd></div>
         <div><dt>Next milestone</dt><dd>${next ? dShort(next.date) : 'None left'}</dd></div>
         <div><dt>Follow-up actions</dt><dd>${nFollow}</dd></div>
-        <div><dt>Later amended</dt><dd>${d.links.amended_by.length ? d.links.amended_by.length + '×' : 'No'}</dd></div>
+        <div><dt>Later amended</dt><dd>${nl(d, 'amended_by') ? nl(d, 'amended_by') + '×' : 'No'}</dd></div>
       </dl>
     </div></aside>
   </div>
@@ -530,7 +562,7 @@ function rolloutChart(d) {
       <line x1="${X(now)}" x2="${X(now)}" y1="52" y2="88" stroke="var(--bad)" stroke-width="2"/>
       <text x="${X(now)}" y="146" text-anchor="middle" font-size="11" font-weight="700" fill="var(--bad)">TODAY</text>
     </svg>
-    <p style="margin:12px 0 0">${d.links.based_on.length ? `Since adoption, <b>${d.links.based_on.length} follow-up act${d.links.based_on.length > 1 ? 's and reports' : ' or report'}</b> have built on this decision. Open the decision map to see them.` : 'No follow-up acts have been published yet.'}</p>`;
+    <p style="margin:12px 0 0">${nl(d, 'based_on') ? `Since adoption, <b>${nl(d, 'based_on')} follow-up act${nl(d, 'based_on') > 1 ? 's and reports' : ' or report'}</b> have built on this decision. Open the decision map to see them.` : 'No follow-up acts have been published yet.'}</p>`;
 }
 
 // ---------- mind map
@@ -553,8 +585,8 @@ function drawMap(d, sc) {
   branches.push({ name: 'Milestones', color: '#1f3a93', items: milestones(d).map(m => ({ label: m.what.split(' (')[0], sub: dShort(m.date) + (m.date > TODAY ? ' (upcoming)' : ''), href: null })) });
   if (acts.length) branches.push({ name: 'Follow-up rules', color: '#c27c0e', items: acts.map(leaf) });
   if (docs.length) branches.push({ name: 'Reports & votes', color: '#8a5cc2', items: docs.map(x => ({ ...leaf(x), label: (x.id.includes('IP') ? 'Parliament vote' : x.id.includes('DC') ? 'Commission report' : x.id.includes('PC') ? 'Proposal' : 'Document') + ': ' + (x.label || x.ref) })) });
-  if (d.links.changes.length) branches.push({ name: 'Laws it changes', color: '#5f6b7a', items: d.links.changes.map(leaf) });
-  if (d.links.amended_by.length) branches.push({ name: 'Later amended by', color: '#b3261e', items: d.links.amended_by.map(leaf) });
+  if (nl(d, 'changes')) branches.push({ name: 'Laws it changes', color: '#5f6b7a', items: d.links.changes.map(leaf) });
+  if (nl(d, 'amended_by')) branches.push({ name: 'Later amended by', color: '#b3261e', items: d.links.amended_by.map(leaf) });
 
   // two columns of branches around the centre; leaves stacked beside each branch
   const W = 1000, cx = W / 2, LEAF_H = 48, GAP = 34;
@@ -608,7 +640,7 @@ function drawTimeline(d) {
 }
 
 // ---------------------------------------------------------------- boot
-fetch('data.json').then(r => r.json()).then(data => {
+fetch('data.json?d=' + new Date().toISOString().slice(0, 13))   /* new copy every hour, never a stale one */.then(r => r.json()).then(data => {
   D = data;
   BY_ID = Object.fromEntries(D.decisions.map(d => [d.id, d]));
   SEC = Object.fromEntries(D.sections.map(s => [s.id, s]));
@@ -622,7 +654,7 @@ fetch('data.json').then(r => r.json()).then(data => {
   document.getElementById('today').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   document.getElementById('tracking').textContent = `Tracking ${D.decisions.length} EU decisions since ${dShort(D.since)}`;
   document.getElementById('updated').textContent = `Updated ${dShort(D.updated)} from EUR-Lex & Eurostat`;
-  document.getElementById('nav').innerHTML = `<div class="wrap"><a href="#/">Front page</a><a href="#/goals" data-id="goals">Scorecard</a><a href="#/search" data-id="search">Search</a>${D.sections.map(s => `<a href="#/section/${s.id}" data-id="${s.id}">${esc(s.name)}</a>`).join('')}</div>`;
+  document.getElementById('nav').innerHTML = `<div class="wrap"><a href="#/">Front page</a><a href="#/goals" data-id="goals">Scorecard</a><a href="#/coming" data-id="coming">Coming up</a><a href="#/search" data-id="search">Search</a>${D.sections.map(s => `<a href="#/section/${s.id}" data-id="${s.id}">${esc(s.name)}</a>`).join('')}</div>`;
   window.addEventListener('hashchange', route);
   route();
 }).catch(e => { $app.innerHTML = `<p class="loading">Could not load data.json (${esc(e.message)}). Serve this folder with a local web server.</p>`; });

@@ -27,7 +27,9 @@
     "waste",
     "pollution",
     "packaging"
-   ]
+   ],
+   "about": "Laws and targets to cut emissions, switch to clean energy, deal with waste and protect nature.",
+   "since": "2019-12-01"
   },
   {
    "id": "economy",
@@ -52,7 +54,9 @@
     "company law",
     "payment",
     "fiscal"
-   ]
+   ],
+   "about": "The euro, banks, taxes, the EU budget and the rules companies have to follow.",
+   "since": "2019-12-01"
   },
   {
    "id": "digital",
@@ -74,7 +78,9 @@
     "space",
     "research",
     "telecom"
-   ]
+   ],
+   "about": "Data, artificial intelligence, cybersecurity, online platforms and Europe's industry.",
+   "since": "2019-12-01"
   },
   {
    "id": "defence",
@@ -91,7 +97,8 @@
     "CFSP",
     "ammunition",
     "Ukraine"
-   ]
+   ],
+   "about": "Sanctions, military aid to partner armies, EU missions abroad and Europe's push to rearm."
   },
   {
    "id": "world",
@@ -110,7 +117,9 @@
     "import",
     "export",
     "anti-dumping"
-   ]
+   ],
+   "about": "Trade deals, customs duties, and EU loans and partnerships beyond its borders.",
+   "since": "2019-12-01"
   },
   {
    "id": "justice",
@@ -131,7 +140,9 @@
     "victims",
     "Schengen",
     "citizens"
-   ]
+   ],
+   "about": "Asylum and borders, police and courts, and the rights of people living in the EU.",
+   "since": "2019-12-01"
   },
   {
    "id": "health",
@@ -152,7 +163,9 @@
     "food safety",
     "tobacco",
     "cosmetic"
-   ]
+   ],
+   "about": "Medicines, health data, product safety and consumer rights.",
+   "since": "2019-12-01"
   },
   {
    "id": "farming",
@@ -172,7 +185,9 @@
     "animal",
     "forest",
     "wine"
-   ]
+   ],
+   "about": "Farm subsidies, fishing quotas, food rules and the countryside.",
+   "since": "2019-12-01"
   },
   {
    "id": "transport",
@@ -190,7 +205,9 @@
     "road",
     "driving",
     "airport"
-   ]
+   ],
+   "about": "Roads, rail, ships and planes: safety, pollution and how people and goods move.",
+   "since": "2019-12-01"
   },
   {
    "id": "social",
@@ -212,7 +229,9 @@
     "disabilit",
     "equality",
     "platform work"
-   ]
+   ],
+   "about": "Jobs, workers' rights, EU funds for regions and help after natural disasters.",
+   "since": "2019-12-01"
   }
  ],
  "priority": [
@@ -536,6 +555,15 @@
  ],
  "photo_topics": [
   {
+   "id": "covid",
+   "match": "COVID|coronavirus|pandemic",
+   "search": [
+    "COVID-19 vaccination centre Europe",
+    "COVID-19 intensive care unit Europe",
+    "empty street lockdown 2020"
+   ]
+  },
+  {
    "id": "disaster",
    "match": "Solidarity Fund|Disaster aid|flood|RESTORE|reconstruction",
    "search": [
@@ -737,8 +765,17 @@
    ]
   },
   {
+   "id": "eu_funds",
+   "match": "Recovery and Resilience|Cohesion|Regional Development|Social Fund|Just Transition|Recovery Instrument|Technical Support Instrument|Border Regions|pre-financing|Interreg|REACT-EU",
+   "search": [
+    "EU funded project sign construction",
+    "European Regional Development Fund sign",
+    "road construction European Union funding"
+   ]
+  },
+  {
    "id": "workers",
-   "match": "workers|carcinogen|labour|social security|Talent Pool",
+   "match": "workers|carcinogen|labour|social security|Talent Pool|platform work|minimum wages|Employment Services|unemployment risks|Youth Employment",
    "search": [
     "industrial worker protective helmet factory Europe",
     "metal worker workshop",
@@ -775,7 +812,7 @@
   },
   {
    "id": "water_nature",
-   "match": "water|wolf|soil|forest|biodiversity|nature|pollution",
+   "match": "water|wolf|soil|forest|biodiversity|nature|pollution|air quality|Environment Action",
    "search": [
     "European grey wolf",
     "river Europe clean water",
@@ -802,11 +839,20 @@
   },
   {
    "id": "migration",
-   "match": "return of third-country|third-country nationals|safe countr|safe third|asylum|migra|visa|external border|Schengen|entry/exit|2017/2226|passenger information|identity cards|Vanuatu|suspension mechanism",
+   "match": "return of third-country|third-country nationals|safe countr|safe third|asylum|migra|visa|external border|Schengen|entry/exit|2017/2226|passenger information|identity cards|Vanuatu|suspension mechanism|international protection|reception of applicants|return border procedure|Schengen Borders Code|movement of persons across borders",
    "search": [
     "Frontex border guards",
     "passport control airport",
     "migrants boat Mediterranean rescue"
+   ]
+  },
+  {
+   "id": "aviation",
+   "match": "air services|airports?\\b|\\bslots?\\b|aviation|aircraft|Single European Sky|air traffic|airlines?",
+   "search": [
+    "Airbus A320 landing",
+    "airport apron aircraft Europe",
+    "air traffic control tower"
    ]
   },
   {
@@ -819,7 +865,7 @@
   },
   {
    "id": "health",
-   "match": "health|medic|pharma|compulsory licensing|patient|disease",
+   "match": "health|medic|pharma|compulsory licensing|patient|disease|substances of human origin|medical devices|cross-border threats to health",
    "search": [
     "hospital nurse patient Europe",
     "doctor stethoscope hospital",
@@ -843,14 +889,50 @@
   },
   {
    "id": "consumers",
-   "match": "consumer|travellers|package travel|dispute resolution|product safety",
+   "match": "consumer|travellers|package travel|dispute resolution|product safety|repair of goods|defective products|ecodesign",
    "search": [
     "airport departures hall travellers"
    ]
   },
   {
+   "id": "education",
+   "match": "Erasmus|Solidarity Corps|Creative Europe|Capitals? of Culture|European Year|education|\\bskills\\b|\\byouth\\b",
+   "search": [
+    "Erasmus students",
+    "university lecture hall students",
+    "students library Europe"
+   ]
+  },
+  {
+   "id": "media",
+   "match": "\\bmedia\\b|journalis|audiovisual",
+   "search": [
+    "newspaper kiosk Europe",
+    "journalists press conference microphones",
+    "television studio cameras"
+   ]
+  },
+  {
+   "id": "equality",
+   "match": "violence against women|equal treatment|equality bodies|gender|disabilit|pay gap",
+   "search": [
+    "International Women's Day march Europe",
+    "women's rights demonstration",
+    "wheelchair user ramp accessibility"
+   ]
+  },
+  {
+   "id": "space",
+   "match": "space programme|Galileo|satellites?\\b|Copernicus|IRIS",
+   "search": [
+    "Galileo satellite",
+    "Ariane launch Kourou",
+    "Sentinel satellite Copernicus"
+   ]
+  },
+  {
    "id": "chemicals",
-   "match": "chemicals\\b|Chemicals Agency|ECHA|REACH",
+   "match": "chemicals\\b|Chemicals Agency|ECHA|REACH|substances that deplete|fluorinated",
    "search": [
     "chemistry laboratory",
     "chemical plant Europe"
@@ -858,7 +940,7 @@
   },
   {
    "id": "finance",
-   "match": "\\bbank|resolution|deposit|insurance|Solvency|supervision|benchmark|central counterpart|securities|settlement cycle|financial services|investment firms|ESG rating|sustainability reporting|capital requirements|foreign investments",
+   "match": "\\bbank|resolution|deposit|insurance|Solvency|supervision|benchmark|central counterpart|securities|settlement cycle|financial services|investment firms|ESG rating|sustainability reporting|capital requirements|foreign investments|money laundering|crypto|\\bpayment|crowdfunding|capital markets|financial instruments|\\bcredit|macro-prudential|transfers of funds",
    "search": [
     "Frankfurt skyline banks",
     "European Central Bank Frankfurt",
@@ -867,7 +949,7 @@
   },
   {
    "id": "tax_euro",
-   "match": "VAT|\\btax|euro in Bulgaria|euro for Bulgaria|Brexit|multiannual financial|EU budget|guarantee|InvestEU|Prosecutor|anti-fraud",
+   "match": "VAT|\\btax|euro in Bulgaria|euro for Bulgaria|Brexit|multiannual financial|EU budget|guarantee|InvestEU|Prosecutor|anti-fraud|excise|general budget of the Union|conditionality|own resources|Flexibility Instrument|budgetary|deficit|economic policies",
    "search": [
     "euro banknotes coins",
     "Bulgarian euro coins",
@@ -876,7 +958,7 @@
   },
   {
    "id": "ai_data",
-   "match": "artificial intelligence|\\bAI\\b|data|cyber|computing|digital|security services|chips|semiconductor|privacy|online",
+   "match": "artificial intelligence|\\bAI\\b|data|cyber|computing|digital|security services|chips|semiconductor|privacy|online|roaming|gigabit|electronic communications",
    "search": [
     "data center servers",
     "supercomputer",
@@ -885,7 +967,7 @@
   },
   {
    "id": "rail",
-   "match": "rail",
+   "match": "rail|trans-European transport network",
    "search": [
     "ICE train Germany",
     "freight train Europe"
@@ -893,7 +975,7 @@
   },
   {
    "id": "road",
-   "match": "driving|road|vehicle|heavy-duty|truck|car\\b|machinery",
+   "match": "driving|road|vehicle|heavy-duty|truck|car\\b|machinery|rest periods|minimum breaks|freight transport|tyres",
    "search": [
     "highway traffic Europe",
     "driving school car",

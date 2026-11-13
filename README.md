@@ -67,3 +67,11 @@ Ces pages ont aussi leur image et leur titre d'aperçu : un lien partagé sur Wh
 ## Recherche et flux RSS
 - **Recherche** (`#/search`) : dans le menu. Elle cherche dans les titres, les titres officiels, les références (par ex. `2026/2332`), les rubriques et les sujets, sans tenir compte des accents. L'adresse de la recherche peut être partagée (par ex. `#/search/iran`).
 - **Flux RSS** (`feed.xml`) : les 60 dernières décisions (sans les mises à jour de routine), refait chaque matin par `pages.py`. Lien en bas de page.
+
+## Coming up (lois en négociation)
+- Page `#/coming` (et `coming.html` pour Google) : les lois encore en négociation entre le Parlement européen et les gouvernements, leur étape (5 étapes, de la proposition de la Commission à l'accord final) et le prochain vote en séance plénière.
+- Source : les données ouvertes du Parlement européen (`data.europarl.europa.eu`), lues chaque matin par `update.py` (`fetch_coming_up`). La rubrique vient de la commission parlementaire chargée du texte. Si le site du Parlement ne répond pas, la liste de la veille est gardée.
+
+## Périodes couvertes
+- Security & Defence : les 2 dernières années (`site.years_back` dans `config.json`).
+- Les autres rubriques remontent au 1er décembre 2019, début de la Commission von der Leyen (`since` de chaque rubrique). Les décisions de politique étrangère (sanctions, missions, aide militaire) restent sur 2 ans partout.

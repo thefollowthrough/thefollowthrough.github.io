@@ -66,7 +66,7 @@ def dek(d, today):
         s += f", with {len(future) - 1} more milestone{'s' if len(future) > 2 else ''} after that." if len(future) > 1 else "."
     elif d.get("in_force"):
         s += f" In force since {dlong(d['in_force'][0])}."
-    n = len(d["links"].get("based_on", []))
+    n = d.get("links_n", {}).get("based_on", len(d["links"].get("based_on", [])))
     if n:
         s += f" {n} follow-up action{'s' if n > 1 else ''} so far."
     return s
@@ -86,7 +86,7 @@ def img_url(p):
     return p["url"].replace("/1920px-", "/1280px-")
 
 
-def page(cfg, *, title, description, path, body, image=None, og_type="website", jsonld=None, css_v="10"):
+def page(cfg, *, title, description, path, body, image=None, og_type="website", jsonld=None, css_v="12"):
     site = cfg["site"]
     base = site["url"].rstrip("/")
     url = f"{base}/{path}" if path else f"{base}/"
@@ -135,7 +135,7 @@ def page(cfg, *, title, description, path, body, image=None, og_type="website", 
 </head>
 <body>
 <header class="masthead"><div class="wrap"><a href="/" class="brand">{e(site['name'])}</a><div class="tagline">{e(site['tagline'])}</div></div></header>
-<nav class="sections"><div class="wrap"><a href="/">Front page</a><a href="/goals.html">Scorecard</a><a href="/#/search">Search</a>{''.join(f'<a href="/section/{s["id"]}.html">{e(s["name"])}</a>' for s in cfg["sections"])}</div></nav>
+<nav class="sections"><div class="wrap"><a href="/">Front page</a><a href="/goals.html">Scorecard</a><a href="/coming.html">Coming up</a><a href="/#/search">Search</a>{''.join(f'<a href="/section/{s["id"]}.html">{e(s["name"])}</a>' for s in cfg["sections"])}</div></nav>
 <main class="wrap static">
 {body}
 </main>
@@ -205,7 +205,8 @@ def section_page(s, data, cfg):
         items.append(f'<a href="/decision/{d["id"]}.html"><span class="kicker">{e(dlong(d["date"]))}<span class="k2">{e(d["kind"])}</span></span><div class="hl">{e(d["headline"])}</div></a>')
     body = f"""<div class="crumbs" style="margin-top:20px"><a href="/">Front page</a> › {e(s['name'])}</div>
 <h1 class="hl">{e(s['name'])}</h1>
-<p class="dek">Every {e(s['name'].lower())} decision the EU has taken since {dlong(data['since'])}: {len(lst)} in all, newest first. <a href="/#/section/{s['id']}">Open the interactive version →</a></p>
+<p class="dek">{e(s.get('about', ''))}</p>
+<p class="muted" style="font:500 14px var(--sans)">Every decision since {dlong(s.get('since') or data['since'])}: {len(lst)} in all, newest first. <a href="/#/section/{s['id']}">Open the interactive version →</a></p>
 <div class="row-list">{''.join(items)}</div>"""
     return page(cfg, title=f"{s['name']}: every EU decision tracked | {cfg['site']['name']}",
                 description=f"All {len(lst)} EU {s['name'].lower()} decisions since {dlong(data['since'])}, and whether each one is delivering.",
@@ -226,6 +227,22 @@ def goals_page(data, cfg):
 
 
 ISSUES = "https://github.com/thefollowthrough/thefollowthrough.github.io/issues"
+
+
+def coming_page(data, cfg):
+    secs = {s["id"]: s["name"] for s in cfg["sections"]}
+    items = "".join(
+        f'<a href="{e(x["url"])}" rel="noopener"><span class="kicker">{e(secs.get(x["section"], "EU law"))}<span class="k2">{e(x["ref"])} · {e(x["stage_label"])}</span></span>'
+        f'<div class="hl">{e(x["headline"])}</div>'
+        + (f'<span class="muted" style="font:500 13px var(--sans)">Parliament votes on {dlong(x["next_vote"])}</span>' if x.get("next_vote") else "")
+        + "</a>" for x in data.get("coming", []))
+    body = f"""<div class="crumbs" style="margin-top:20px"><a href="/">Front page</a> › Coming up</div>
+<h1 class="hl">Coming up: EU laws in the works</h1>
+<p class="dek">Laws still being negotiated between the European Parliament and EU governments, how far each one has got, and the next vote. <a href="/#/coming">Open the interactive version →</a></p>
+<div class="row-list">{items}</div>"""
+    return page(cfg, title=f"Coming up: EU laws in the works | {cfg['site']['name']}",
+                description="Every EU law still being negotiated, its stage and the next vote in the European Parliament.",
+                path="coming.html", body=body)
 
 
 def about_page(data, cfg):
@@ -339,10 +356,13 @@ def build(data=None, cfg=None):
             f.write(section_page(s, data, cfg))
     with open(os.path.join(HERE, "goals.html"), "w", encoding="utf-8") as f:
         f.write(goals_page(data, cfg))
+    with open(os.path.join(HERE, "coming.html"), "w", encoding="utf-8") as f:
+        f.write(coming_page(data, cfg))
     with open(os.path.join(HERE, "about.html"), "w", encoding="utf-8") as f:
         f.write(about_page(data, cfg))
 
     urls = [(f"{base}/", data["updated"], "daily", "1.0"), (f"{base}/goals.html", data["updated"], "daily", "0.8"),
+            (f"{base}/coming.html", data["updated"], "daily", "0.8"),
             (f"{base}/about.html", data["updated"], "monthly", "0.4")]
     urls += [(f"{base}/section/{s['id']}.html", data["updated"], "daily", "0.7") for s in cfg["sections"]]
     urls += [(f"{base}/decision/{d['id']}.html", d["date"], "weekly", "0.6") for d in data["decisions"] if f"{d['id']}.html" in keep]
