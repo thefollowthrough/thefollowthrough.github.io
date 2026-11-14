@@ -6,7 +6,7 @@
     <atom:link href="https://thefollowthrough.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     <description>Europe decided. Did it deliver? New EU decisions, and whether they deliver.</description>
     <language>en</language>
-    <lastBuildDate>Fri, 13 Nov 2026 12:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 14 Nov 2026 12:00:00 +0000</lastBuildDate>
     <image><url>https://thefollowthrough.github.io/icon-192.png</url><title>The Follow-Through</title><link>https://thefollowthrough.github.io/</link></image>
     <item>
       <title>New EU military aid for Mauritania&#x27;s armed forces</title>
@@ -17,6 +17,14 @@
       <description>EU governments approved a new package under the European Peace Facility, the EU fund that pays for equipment and training for partner armies. Mauritania borders Mali, where armed jihadist groups are active.</description>
     </item>
     <item>
+      <title>Customs duties adjusted for selected imports</title>
+      <link>https://thefollowthrough.github.io/decision/32026R2446.html</link>
+      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026R2446.html</guid>
+      <pubDate>Mon, 26 Oct 2026 12:00:00 +0000</pubDate>
+      <category>Trade &amp; World</category>
+      <description>Adopted by the Council of the EU on 26 October 2026. Next step: enters into force on 17 November 2026.</description>
+    </item>
+    <item>
       <title>EU adopts a new sanctions decision on DR Congo</title>
       <link>https://thefollowthrough.github.io/decision/32026R2374.html</link>
       <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026R2374.html</guid>
@@ -25,12 +33,12 @@
       <description>EU sanctions usually mean asset freezes and travel bans for the people and companies listed, and sometimes trade bans. Eastern Congo has seen heavy fighting involving the M23 armed group.</description>
     </item>
     <item>
-      <title>Customs duties adjusted for selected imports</title>
-      <link>https://thefollowthrough.github.io/decision/32026R2446.html</link>
-      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026R2446.html</guid>
-      <pubDate>Mon, 26 Oct 2026 12:00:00 +0000</pubDate>
-      <category>Trade &amp; World</category>
-      <description>Adopted by the Council of the EU on 26 October 2026. Next step: enters into force on 17 November 2026.</description>
+      <title>Rules rewritten: Certain provisions for fishing in the General Fisheries Commission for the Mediterranean…</title>
+      <link>https://thefollowthrough.github.io/decision/32026R2473.html</link>
+      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026R2473.html</guid>
+      <pubDate>Wed, 21 Oct 2026 12:00:00 +0000</pubDate>
+      <category>Food &amp; Farming</category>
+      <description>Passed by the European Parliament and the Council on 21 October 2026. Next step: enters into force on 24 November 2026.</description>
     </item>
     <item>
       <title>EU makes it easier to move military equipment between its countries</title>
@@ -41,14 +49,6 @@
       <description>Simpler rules for sending defence products from one EU country to another.</description>
     </item>
     <item>
-      <title>Rules rewritten: Protection of workers from the risks related to exposure to carcinogens, mutagens or…</title>
-      <link>https://thefollowthrough.github.io/decision/32026L2450.html</link>
-      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026L2450.html</guid>
-      <pubDate>Wed, 21 Oct 2026 12:00:00 +0000</pubDate>
-      <category>Jobs &amp; Society</category>
-      <description>Passed by the European Parliament and the Council on 21 October 2026. Next step: enters into force on 19 November 2026.</description>
-    </item>
-    <item>
       <title>Rules rewritten: Market stability reserve for buildings, road transport and additional sectors</title>
       <link>https://thefollowthrough.github.io/decision/32026D2402.html</link>
       <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026D2402.html</guid>
@@ -57,12 +57,12 @@
       <description>Passed by the European Parliament and the Council on 21 October 2026. Next step: enters into force on 17 November 2026.</description>
     </item>
     <item>
-      <title>EU fast-tracks permits for defence projects</title>
-      <link>https://thefollowthrough.github.io/decision/32026R2381.html</link>
-      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026R2381.html</guid>
+      <title>EU launches AGILE to fast-track new defence technology</title>
+      <link>https://thefollowthrough.github.io/decision/32026R2387.html</link>
+      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026R2387.html</guid>
       <pubDate>Wed, 21 Oct 2026 12:00:00 +0000</pubDate>
       <category>Security &amp; Defence</category>
-      <description>A new law shortens the paperwork for building factories, depots and other defence projects.</description>
+      <description>A new EU programme is meant to get innovative defence products from the lab to the armed forces faster.</description>
     </item>
     <item>
       <title>EU cuts red tape to speed up defence investment</title>
@@ -71,6 +71,22 @@
       <pubDate>Wed, 21 Oct 2026 12:00:00 +0000</pubDate>
       <category>Security &amp; Defence</category>
       <description>Parliament and governments changed several EU rules at once so that money can flow to defence projects more quickly.</description>
+    </item>
+    <item>
+      <title>Rules rewritten: Protection of workers from the risks related to exposure to carcinogens, mutagens or…</title>
+      <link>https://thefollowthrough.github.io/decision/32026L2450.html</link>
+      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026L2450.html</guid>
+      <pubDate>Wed, 21 Oct 2026 12:00:00 +0000</pubDate>
+      <category>Jobs &amp; Society</category>
+      <description>Passed by the European Parliament and the Council on 21 October 2026. Next step: enters into force on 19 November 2026.</description>
+    </item>
+    <item>
+      <title>EU fast-tracks permits for defence projects</title>
+      <link>https://thefollowthrough.github.io/decision/32026R2381.html</link>
+      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026R2381.html</guid>
+      <pubDate>Wed, 21 Oct 2026 12:00:00 +0000</pubDate>
+      <category>Security &amp; Defence</category>
+      <description>A new law shortens the paperwork for building factories, depots and other defence projects.</description>
     </item>
     <item>
       <title>EU fund steps in for laid-off workers in Finland</title>
@@ -87,22 +103,6 @@
       <pubDate>Wed, 21 Oct 2026 12:00:00 +0000</pubDate>
       <category>Jobs &amp; Society</category>
       <description>Passed by the European Parliament and the Council on 21 October 2026. In force since 21 October 2026.</description>
-    </item>
-    <item>
-      <title>EU launches AGILE to fast-track new defence technology</title>
-      <link>https://thefollowthrough.github.io/decision/32026R2387.html</link>
-      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026R2387.html</guid>
-      <pubDate>Wed, 21 Oct 2026 12:00:00 +0000</pubDate>
-      <category>Security &amp; Defence</category>
-      <description>A new EU programme is meant to get innovative defence products from the lab to the armed forces faster.</description>
-    </item>
-    <item>
-      <title>Rules rewritten: Certain provisions for fishing in the General Fisheries Commission for the Mediterranean…</title>
-      <link>https://thefollowthrough.github.io/decision/32026R2473.html</link>
-      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026R2473.html</guid>
-      <pubDate>Wed, 21 Oct 2026 12:00:00 +0000</pubDate>
-      <category>Food &amp; Farming</category>
-      <description>Passed by the European Parliament and the Council on 21 October 2026. Next step: enters into force on 24 November 2026.</description>
     </item>
     <item>
       <title>EU names a new special envoy for human rights</title>
@@ -145,6 +145,22 @@
       <description>Passed by the European Parliament and the Council on 7 October 2026. In force since 10 October 2026.</description>
     </item>
     <item>
+      <title>EU fund steps in for laid-off workers in Spain (Galicia automotive ancillary)</title>
+      <link>https://thefollowthrough.github.io/decision/32026D2453.html</link>
+      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026D2453.html</guid>
+      <pubDate>Wed, 07 Oct 2026 12:00:00 +0000</pubDate>
+      <category>Jobs &amp; Society</category>
+      <description>Passed by the European Parliament and the Council on 7 October 2026. In force since 7 October 2026.</description>
+    </item>
+    <item>
+      <title>EU fund steps in for laid-off workers in Belgium (Cora)</title>
+      <link>https://thefollowthrough.github.io/decision/32026D2455.html</link>
+      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026D2455.html</guid>
+      <pubDate>Wed, 07 Oct 2026 12:00:00 +0000</pubDate>
+      <category>Jobs &amp; Society</category>
+      <description>Passed by the European Parliament and the Council on 7 October 2026. In force since 7 October 2026.</description>
+    </item>
+    <item>
       <title>EU agrees one system to send back people with no right to stay</title>
       <link>https://thefollowthrough.github.io/decision/32026R2280.html</link>
       <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026R2280.html</guid>
@@ -169,22 +185,6 @@
       <description>Passed by the European Parliament and the Council on 7 October 2026. In force since 1 November 2026.</description>
     </item>
     <item>
-      <title>EU fund steps in for laid-off workers in Spain (Galicia automotive ancillary)</title>
-      <link>https://thefollowthrough.github.io/decision/32026D2453.html</link>
-      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026D2453.html</guid>
-      <pubDate>Wed, 07 Oct 2026 12:00:00 +0000</pubDate>
-      <category>Jobs &amp; Society</category>
-      <description>Passed by the European Parliament and the Council on 7 October 2026. In force since 7 October 2026.</description>
-    </item>
-    <item>
-      <title>EU fund steps in for laid-off workers in Belgium (Cora)</title>
-      <link>https://thefollowthrough.github.io/decision/32026D2455.html</link>
-      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026D2455.html</guid>
-      <pubDate>Wed, 07 Oct 2026 12:00:00 +0000</pubDate>
-      <category>Jobs &amp; Society</category>
-      <description>Passed by the European Parliament and the Council on 7 October 2026. In force since 7 October 2026.</description>
-    </item>
-    <item>
       <title>New EU military aid for the Balkan Medical Task Force</title>
       <link>https://thefollowthrough.github.io/decision/32026D2231.html</link>
       <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026D2231.html</guid>
@@ -201,14 +201,6 @@
       <description>EU governments approved a new package under the European Peace Facility, the EU fund that pays for equipment and training for partner armies.</description>
     </item>
     <item>
-      <title>EU backs Strengthening the United Nations Secretary-General’s Mechanism for investigation of…</title>
-      <link>https://thefollowthrough.github.io/decision/32026D2176.html</link>
-      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026D2176.html</guid>
-      <pubDate>Mon, 28 Sep 2026 12:00:00 +0000</pubDate>
-      <category>Security &amp; Defence</category>
-      <description>Foreign-policy decision by EU governments on 28 September 2026. In force since 28 September 2026.</description>
-    </item>
-    <item>
       <title>EU sets up a system to respond to threats in space</title>
       <link>https://thefollowthrough.github.io/decision/32026D2195.html</link>
       <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026D2195.html</guid>
@@ -217,12 +209,12 @@
       <description>A framework for how the EU reacts when its satellites or space services are threatened.</description>
     </item>
     <item>
-      <title>Rules rewritten: Of the European Parliament and of the Council establishing common rules on compensation and…</title>
-      <link>https://thefollowthrough.github.io/decision/32026R2202.html</link>
-      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026R2202.html</guid>
-      <pubDate>Wed, 16 Sep 2026 12:00:00 +0000</pubDate>
-      <category>Health &amp; Consumers</category>
-      <description>Passed by the European Parliament and the Council on 16 September 2026. Next step: next stage starts to apply on 23 October 2027.</description>
+      <title>EU backs Strengthening the United Nations Secretary-General’s Mechanism for investigation of…</title>
+      <link>https://thefollowthrough.github.io/decision/32026D2176.html</link>
+      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026D2176.html</guid>
+      <pubDate>Mon, 28 Sep 2026 12:00:00 +0000</pubDate>
+      <category>Security &amp; Defence</category>
+      <description>Foreign-policy decision by EU governments on 28 September 2026. In force since 28 September 2026.</description>
     </item>
     <item>
       <title>EU creates its own customs authority to police imports</title>
@@ -231,6 +223,14 @@
       <pubDate>Wed, 16 Sep 2026 12:00:00 +0000</pubDate>
       <category>Trade &amp; World</category>
       <description>A single EU customs authority and a shared data hub will oversee the goods entering Europe, from container ships to small online parcels.</description>
+    </item>
+    <item>
+      <title>Rules rewritten: Of the European Parliament and of the Council establishing common rules on compensation and…</title>
+      <link>https://thefollowthrough.github.io/decision/32026R2202.html</link>
+      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026R2202.html</guid>
+      <pubDate>Wed, 16 Sep 2026 12:00:00 +0000</pubDate>
+      <category>Health &amp; Consumers</category>
+      <description>Passed by the European Parliament and the Council on 16 September 2026. Next step: next stage starts to apply on 23 October 2027.</description>
     </item>
     <item>
       <title>EU adopts a new sanctions decision on terrorist groups</title>
@@ -329,14 +329,6 @@
       <description>Foreign-policy decision by EU governments on 13 July 2026. In force since 13 July 2026.</description>
     </item>
     <item>
-      <title>Fishing quotas adjusted</title>
-      <link>https://thefollowthrough.github.io/decision/32026R1933.html</link>
-      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026R1933.html</guid>
-      <pubDate>Mon, 13 Jul 2026 12:00:00 +0000</pubDate>
-      <category>Food &amp; Farming</category>
-      <description>Adopted by the Council of the EU on 13 July 2026. In force since 27 July 2026.</description>
-    </item>
-    <item>
       <title>EU names a new special envoy for Kosovo</title>
       <link>https://thefollowthrough.github.io/decision/32026D1726.html</link>
       <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026D1726.html</guid>
@@ -359,6 +351,14 @@
       <pubDate>Mon, 13 Jul 2026 12:00:00 +0000</pubDate>
       <category>Security &amp; Defence</category>
       <description>EU governments approved a new package under the European Peace Facility, the EU fund that pays for equipment and training for partner armies.</description>
+    </item>
+    <item>
+      <title>Fishing quotas adjusted</title>
+      <link>https://thefollowthrough.github.io/decision/32026R1933.html</link>
+      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026R1933.html</guid>
+      <pubDate>Mon, 13 Jul 2026 12:00:00 +0000</pubDate>
+      <category>Food &amp; Farming</category>
+      <description>Adopted by the Council of the EU on 13 July 2026. In force since 27 July 2026.</description>
     </item>
     <item>
       <title>Extending the mandate of the European Union Special Representative for the Horn of Africa</title>
