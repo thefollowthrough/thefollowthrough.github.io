@@ -283,12 +283,12 @@ ul.plain { list-style: none; margin: 0; padding: 0; }
 /* country map panel */
 .c-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 22px; align-items: start; margin: 6px 0 4px; }
 .c-svg { width: 100%; height: auto; display: block; background: #eef2f6; border: 1px solid var(--rule); border-radius: 4px; }
-.c-svg .o { fill: #e2ded5; stroke: #fff; stroke-width: .8; }
+.c-svg .o { fill: #ebe8e1; stroke: #fff; stroke-width: .8; }
 .c-svg path, .c-svg circle { stroke: #fff; stroke-width: 1; stroke-linejoin: round; fill: #d6d1c6; }
 .c-svg .ok { fill: #4f6bc0; }
 .c-svg .case { stroke: #b3261e; stroke-width: 2.6; }
 .c-svg .late { fill: #e8a93a; }
-.c-svg .none { fill: #c9c3b7; }
+.c-svg .none { fill: #b9c6e8; }
 .c-svg path:not(.o):hover, .c-svg circle:hover { opacity: .8; }
 .c-key h3 { margin-top: 14px; }
 .c-missing { font: 600 15px/1.45 var(--sans); margin: 0; }
@@ -296,7 +296,7 @@ ul.plain { list-style: none; margin: 0; padding: 0; }
 .c-legend .ok::before { background: #4f6bc0; border-color: #4f6bc0; }
 .c-legend .case::before { background: transparent; border: 2px solid #b3261e; }
 .c-legend .late::before { background: #e8a93a; border-color: #e8a93a; }
-.c-legend .none::before { background: #c9c3b7; border-color: #c9c3b7; }
+.c-legend .none::before { background: #b9c6e8; border-color: #b9c6e8; }
 @media (max-width: 760px) { .c-wrap { grid-template-columns: 1fr; } .c-legend { flex-direction: row; } }
 #c-map h3 { font: 800 12.5px/1 var(--sans); text-transform: uppercase; letter-spacing: .1em; margin: 22px 0 8px; }
 #c-map .c-key h3 { margin-top: 18px; }

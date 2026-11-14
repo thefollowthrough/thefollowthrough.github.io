@@ -163,7 +163,7 @@ function countryMap(d, m) {
     ? (past ? `The deadline for national laws was ${dLong(due)}.` : `EU countries have until ${dLong(due)} to bring their national laws in line.`)
     : 'A directive only takes effect once each country writes it into national law.';
   const used = new Set(codes.map(fill));
-  return `<p class="c-lead"><b>${done} of 27</b> countries have notified national measures to the European Commission. ${lead}</p>
+  return `<p class="c-lead">${done ? `<b>${done} of 27</b> countries have notified` : '<b>No country</b> has yet notified any'} national measures to the European Commission. ${lead}</p>
     <div class="c-wrap"><svg class="c-svg" viewBox="0 0 ${m.w} ${m.h}" role="img" aria-label="Map of the EU countries that have notified national measures">
       <path class="o" d="${m.other}"/>${order.map(c => `<path class="${cls(c)}" d="${m.eu[c]}"><title>${esc(tip(c))}</title></path>`).join('')}${small}</svg>
     <div class="c-key">
