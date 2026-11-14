@@ -632,6 +632,189 @@ def targets_for(d, cfg, available):
     return [h[2] for h in hits], (hits[0][3] if hits else None)
 
 
+# ---------------------------------------------------------------- 5. what happened next (countries, repeal, official summary)
+EU27 = {"AUT": "AT", "BEL": "BE", "BGR": "BG", "HRV": "HR", "CYP": "CY", "CZE": "CZ", "DNK": "DK", "EST": "EE", "FIN": "FI",
+        "FRA": "FR", "DEU": "DE", "GRC": "EL", "HUN": "HU", "IRL": "IE", "ITA": "IT", "LVA": "LV", "LTU": "LT", "LUX": "LU",
+        "MLT": "MT", "NLD": "NL", "POL": "PL", "PRT": "PT", "ROU": "RO", "SVK": "SK", "SVN": "SI", "ESP": "ES", "SWE": "SE"}
+COUNTRY_NAME = {"Austria": "AT", "Belgium": "BE", "Bulgaria": "BG", "Croatia": "HR", "Cyprus": "CY", "Czechia": "CZ",
+                "Czech Republic": "CZ", "Denmark": "DK", "Estonia": "EE", "Finland": "FI", "France": "FR", "Germany": "DE",
+                "Greece": "EL", "Hungary": "HU", "Ireland": "IE", "Italy": "IT", "Latvia": "LV", "Lithuania": "LT",
+                "Luxembourg": "LU", "Malta": "MT", "Netherlands": "NL", "Poland": "PL", "Portugal": "PT", "Romania": "RO",
+                "Slovakia": "SK", "Slovenia": "SI", "Spain": "ES", "Sweden": "SE"}
+INFR_API = "https://ec.europa.eu/implementing-eu-law/search-infringement-decisions/api/infringements"
+
+
+def _values(celexes):
+    return " ".join(f'"{c}"^^xsd:string' for c in celexes)
+
+
+def national_measures(celexes):
+    """Directives only: which countries have notified national laws, and whether they declared them complete."""
+    q = f"""SELECT ?parent ?c ?decl (COUNT(?n) AS ?k) (MAX(?nd) AS ?last) WHERE {{
+  VALUES ?parent {{ {_values(celexes)} }}
+  ?p cdm:resource_legal_id_celex ?parent .
+  ?n cdm:measure_national_implementing_implements_resource_legal ?p ; cdm:measure_national_implementing_implemented_by_country ?c .
+  OPTIONAL {{ ?n cdm:measure_national_implementing_declaration_transposition_member-state ?decl }}
+  OPTIONAL {{ ?n cdm:work_date_document ?nd }}
+}} GROUP BY ?parent ?c ?decl"""
+    return sparql(q)
+
+
+def transposition_dates(celexes):
+    q = f"""SELECT ?parent (MIN(?t) AS ?due) WHERE {{
+  VALUES ?parent {{ {_values(celexes)} }}
+  ?p cdm:resource_legal_id_celex ?parent ; cdm:directive_date_transposition ?t .
+}} GROUP BY ?parent"""
+    return {r["parent"]: r["due"][:10] for r in sparql(q)}
+
+
+def validity(celexes):
+    """Whether each act is still in force and, if not, which act repealed it."""
+    q = f"""SELECT ?parent ?inforce ?eov ?rep ?rdate ?rtitle WHERE {{
+  VALUES ?parent {{ {_values(celexes)} }}
+  ?p cdm:resource_legal_id_celex ?parent .
+  OPTIONAL {{ ?p cdm:resource_legal_in-force ?inforce }}
+  OPTIONAL {{ ?p cdm:resource_legal_date_end-of-validity ?eov }}
+  OPTIONAL {{ ?w cdm:resource_legal_repeals_resource_legal ?p ; cdm:resource_legal_id_celex ?rep ; cdm:work_date_document ?rdate .
+             FILTER(!CONTAINS(?rep, "("))
+             OPTIONAL {{ ?re cdm:expression_belongs_to_work ?w ; cdm:expression_title ?rtitle ; cdm:expression_uses_language {ENG} }} }}
+}}"""
+    return sparql(q)
+
+
+def eu_summaries(celexes):
+    """The EU's own plain-language summaries ("Summaries of EU legislation"), where one exists."""
+    q = f"""SELECT ?parent ?sid ?t ?m WHERE {{
+  VALUES ?parent {{ {_values(celexes)} }}
+  ?p cdm:resource_legal_id_celex ?parent .
+  ?s cdm:summary_legislation_eu_summarizes_resource_legal ?p ; cdm:summary_legislation_eu_id_legissum ?sid .
+  FILTER NOT EXISTS {{ ?s cdm:summary_legislation_eu_obsolete ?ob . FILTER(STR(?ob) = "1") }}
+  ?e cdm:expression_belongs_to_work ?s ; cdm:expression_uses_language {ENG} ; cdm:expression_title ?t .
+  ?m cdm:manifestation_manifests_expression ?e ; cdm:manifestation_type ?mt . FILTER(STR(?mt) = "xhtml5")
+}}"""
+    return sparql(q)
+
+
+def summary_aim(manifestation):
+    """First section of an official summary ("What is the aim of ...?"), as plain text."""
+    req = urllib.request.Request(manifestation + "/DOC_1", headers={"User-Agent": "TheFollowThrough/0.3 (EU decisions tracker)"})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        h = r.read().decode("utf-8", "ignore")
+    h = re.sub(r"(?s)<(script|style)[^>]*>.*?</\1>", " ", h)
+    m = re.search(r"(?is)WHAT IS THE AIM[^<]*</[^>]+>(.*?)(?:<[^>]+>\s*KEY POINTS|<[^>]+>\s*FROM WHEN)", h)
+    if not m:
+        return None
+    body = re.sub(r"(?is)<sup[^>]*>.*?</sup>", "", m.group(1))              # footnote numbers
+    body = re.sub(r"(?i)</?(?:a|strong|em|b|i|span|abbr)\b[^>]*>", "", body)  # inline tags: no extra space
+    paras = [re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", x)).strip() for x in re.findall(r"(?is)<(?:p|li)[^>]*>(.*?)</(?:p|li)>", body)]
+    paras = [re.sub(r"\s+([,.;:)])", r"\1", re.sub(r"\(\s+", "(", x)) for x in paras if x]
+    text = " ".join(paras)
+    return text[:900].rsplit(" ", 1)[0] + "…" if len(text) > 900 else text or None
+
+
+def infringements(celex):
+    """Commission infringement cases that name this act as their legal basis."""
+    body = json.dumps({"langCode": "EN", "page": 0, "size": 100, "legalBasis": celex, "order": "asc", "sortColumns": "leadDg"}).encode()
+    d = http_json(INFR_API, data=body, headers={"Content-Type": "application/json", "Accept": "application/json",
+                                                 "User-Agent": "TheFollowThrough/0.3 (EU decisions tracker)"}, tries=2)
+    out = []
+    for r in d.get("records", []):
+        cc = COUNTRY_NAME.get(r.get("memberState", ""))
+        steps = []
+        for x in r.get("decisions") or []:
+            try:
+                dd, mm, yy = x["decisionDate"].split("/")
+                steps.append((f"{yy}-{int(mm):02d}-{int(dd):02d}", x.get("decisionType", "")))
+            except Exception:
+                pass
+        if not cc or not steps:
+            continue
+        steps.sort()
+        stage = steps[-1][1]
+        low = stage.lower()
+        label = ("Closed" if "closing" in low else "Referred to the Court" if "referral" in low
+                 else "Reasoned opinion" if "reasoned" in low else "Letter of formal notice" if "formal notice" in low else stage)
+        out.append({"c": cc, "open": r.get("activeInfringementCase") == "Yes", "stage": label, "since": steps[0][0],
+                    "last": steps[-1][0], "type": "late" if r.get("nonCommunicationCase") == "Yes" else "wrong",
+                    "no": r.get("infringementNumber")})
+    return out
+
+
+def follow_through(decisions, cache):
+    """Adds to each decision: national laws by country (directives), infringement cases, repeal, official summary."""
+    by_id = {d["id"]: d for d in decisions}
+    acts = [d["id"] for d in decisions if not d["kind"].startswith("Foreign policy")]
+    dirs = [c for c in acts if c[5] == "L"]
+    print(f"EUR-Lex: national laws for {len(dirs)} directives, validity and summaries for {len(acts)} acts")
+    nat = {c: {} for c in dirs}
+    due = {}
+    for i in range(0, len(dirs), 40):
+        part = dirs[i:i + 40]
+        due.update(transposition_dates(part))
+        for r in national_measures(part):
+            cc = EU27.get(r["c"].rsplit("/", 1)[-1])
+            if not cc:
+                continue
+            x = nat[r["parent"]].setdefault(cc, {"n": 0, "full": False, "last": ""})
+            x["n"] += int(r["k"])
+            x["full"] = x["full"] or r.get("decl", "").endswith("_CPL")
+            x["last"] = max(x["last"], (r.get("last") or "")[:10])
+    for c in dirs:
+        d = by_id[c]
+        # countries rarely declare their transposition "complete" in this register, so we only show who notified laws
+        d["nat"] = {"due": due.get(c), "countries": {k: {"n": v["n"], "last": v["last"]} for k, v in sorted(nat[c].items())}}
+    for i in range(0, len(acts), 40):
+        rep = {}
+        for r in validity(acts[i:i + 40]):
+            d = by_id[r["parent"]]
+            end = (r.get("eov") or "")[:10]
+            # "not in force" also covers laws that have not started yet, so we only trust a past end date
+            if r.get("inforce") == "0" and end and end <= TODAY.isoformat():
+                d["ended"] = {"date": end}
+                if r.get("rep") and r["rep"] != r["parent"]:
+                    rep.setdefault(r["parent"], []).append(r)
+        for c, rs in rep.items():
+            r = max(rs, key=lambda x: x["rdate"])
+            by_id[c]["ended"].update({"by": r["rep"], "by_date": r["rdate"][:10],
+                                      "by_label": headline(r["rtitle"]) if r.get("rtitle") else r["rep"],
+                                      "by_ref": reference(r["rtitle"]) if r.get("rtitle") else r["rep"]})
+    found = 0
+    for i in range(0, len(acts), 40):
+        for r in eu_summaries(acts[i:i + 40]):
+            key = f"sum:{r['parent']}:{r['sid']}"
+            if key not in cache:
+                try:
+                    cache[key] = {"aim": summary_aim(r["m"])}
+                except Exception as e:
+                    print("  summary skipped", r["parent"], e)
+                    continue
+                time.sleep(0.2)
+            d = by_id[r["parent"]]
+            if cache[key].get("aim") and "eu_summary" not in d:
+                d["eu_summary"] = {"title": r["t"], "aim": cache[key]["aim"],
+                                   "url": f"https://eur-lex.europa.eu/legal-content/EN/LSU/?uri=CELEX:{r['parent']}"}
+                found += 1
+    print(f"  {found} official summaries")
+    print("Commission: infringement cases")
+    old = {}
+    try:
+        old = {d["id"]: d.get("infr") for d in json.load(open(os.path.join(HERE, "data.json")))["decisions"]}
+    except Exception:
+        pass
+    n = 0
+    for c in dirs:
+        try:
+            cases = infringements(c)
+        except Exception as e:   # if the register is down, keep yesterday's cases
+            print("  infringements skipped", c, e)
+            cases = old.get(c) or []
+        if cases:
+            by_id[c]["infr"] = cases
+            n += 1
+        time.sleep(0.25)
+    print(f"  cases found for {n} directives")
+
+
 # ---------------------------------------------------------------- main
 def main():
     cfg = json.load(open(os.path.join(HERE, "config.json"), encoding="utf-8"))
@@ -703,6 +886,9 @@ def main():
         d["links_n"] = {k: len(v) for k, v in d["links"].items()}   # true counts, even when the lists are cut
         for k in d["links"]:
             d["links"][k] = d["links"][k][:40]
+
+    follow_through(decisions, cache)
+    json.dump(cache, open(cache_path, "w"), ensure_ascii=False, indent=1)
 
     print("Eurostat: targets")
     tdata = target_data(cfg["targets"])

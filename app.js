@@ -57,6 +57,11 @@ function paceVerdict(t) {
 }
 
 function score(d) {
+  if (d.ended) {
+    const e = d.ended, by = e.by ? (BY_ID[e.by] ? BY_ID[e.by].ref : e.by_ref) : null;
+    return { pct: null, kind: 'status', label: 'Status', cls: 'ended', verdict: 'No longer in force',
+      why: `${e.date ? `It stopped applying on ${dLong(e.date)}.` : 'It no longer applies.'}${by ? ` It was replaced by ${by}.` : ''}` };
+  }
   if (d.targets && d.targets.length) {
     const t = TGT[d.targets[0]], v = paceVerdict(t);
     return { pct: t.progress, kind: 'goal', label: 'Goal progress', cls: v.cls, verdict: v.text, target: t,
@@ -95,7 +100,7 @@ function dek(d) {
     return s + (base ? ` It changes ${base.ref}.` : '') + ' Updates like this usually add or remove names, extend a deadline or change a budget: the official text says which.';
   }
   if (next) s += ` Next step: ${next.what.split(' (')[0].toLowerCase()} on ${dLong(next.date)}${left > 1 ? `, with ${left - 1} more milestone${left > 2 ? 's' : ''} after that` : ''}.`;
-  else if (d.in_force[0]) s += ` In force since ${dLong(d.in_force[0])}.`;
+  else if (d.in_force[0]) s += d.ended && d.ended.date ? ` It applied from ${dLong(d.in_force[0])} to ${dLong(d.ended.date)}.` : ` In force since ${dLong(d.in_force[0])}.`;
   if (nl(d, 'based_on')) s += ` ${nl(d, 'based_on')} follow-up action${nl(d, 'based_on') > 1 ? 's' : ''} so far.`;
   return s;
 }
@@ -104,6 +109,71 @@ function officialDek(d) {
   let s = (m ? m[1] : d.title).replace(/\s*\(Text with EEA relevance\)\s*/, '').trim();
   s = s.charAt(0).toUpperCase() + s.slice(1);
   return s.length > 190 ? s.slice(0, 190).replace(/\s+\S*$/, '') + '…' : s;
+}
+
+// ---------------------------------------------------------------- what happened next
+const EU27 = { AT: 'Austria', BE: 'Belgium', BG: 'Bulgaria', HR: 'Croatia', CY: 'Cyprus', CZ: 'Czechia', DK: 'Denmark',
+  EE: 'Estonia', FI: 'Finland', FR: 'France', DE: 'Germany', EL: 'Greece', HU: 'Hungary', IE: 'Ireland', IT: 'Italy',
+  LV: 'Latvia', LT: 'Lithuania', LU: 'Luxembourg', MT: 'Malta', NL: 'Netherlands', PL: 'Poland', PT: 'Portugal',
+  RO: 'Romania', SK: 'Slovakia', SI: 'Slovenia', ES: 'Spain', SE: 'Sweden' };
+const STAGE_RANK = { 'Referred to the Court': 3, 'Reasoned opinion': 2, 'Letter of formal notice': 1 };
+const INFR_URL = 'https://ec.europa.eu/implementing-eu-law/search-infringement-decisions/?lang_code=EN';
+const actLink = (id, label) => BY_ID[id] ? `<a href="#/decision/${encodeURIComponent(id)}">${esc(label)}</a>`
+  : `<a href="${eurlex(id)}" target="_blank" rel="noopener">${esc(label)} ↗</a>`;
+
+function endedNote(d) {
+  if (!d.ended) return '';
+  const e = d.ended;
+  return `<div class="ended-note"><b>No longer in force</b>${e.date ? ` since ${dLong(e.date)}` : ''}.${e.by
+    ? ` It was replaced by ${actLink(e.by, BY_ID[e.by] ? BY_ID[e.by].ref : e.by_ref)}${BY_ID[e.by] ? `: ${esc(BY_ID[e.by].headline)}` : ''}.` : ''}
+    The page below shows the decision as it was adopted.</div>`;
+}
+
+function euSummary(d) {
+  const s = d.eu_summary;
+  if (!s) return '';
+  return `<div class="eu-sum"><div class="lbl">Summary</div><p>${esc(s.aim)}</p>
+    <a href="${esc(s.url)}" target="_blank" rel="noopener">Full summary on EUR-Lex ↗</a></div>`;
+}
+
+const natCount = d => d.nat ? Object.keys(d.nat.countries || {}).length : null;
+const openCases = d => (d.infr || []).filter(x => x.open);
+
+let MAP = null;
+const loadMap = () => MAP ? Promise.resolve(MAP) : fetch('europe.json?v=1').then(r => r.json()).then(m => (MAP = m));
+
+function drawCountries(d) {
+  loadMap().then(m => { const el = document.getElementById('c-map'); if (el) el.innerHTML = countryMap(d, m); })
+    .catch(() => { const el = document.getElementById('c-map'); if (el) el.innerHTML = '<p class="c-note">The map could not be loaded.</p>'; });
+  return `<div id="c-map"><p class="c-note">Loading the map…</p></div>`;
+}
+
+function countryMap(d, m) {
+  const cs = d.nat.countries || {}, due = d.nat.due, past = due && due <= TODAY, all = d.infr || [];
+  const open = openCases(d).sort((a, b) => (STAGE_RANK[b.stage] || 0) - (STAGE_RANK[a.stage] || 0) || EU27[a.c].localeCompare(EU27[b.c]));
+  const openBy = new Map(open.map(x => [x.c, x])), done = Object.keys(cs).length, closed = all.length - open.length;
+  const codes = Object.keys(EU27).sort((a, b) => EU27[a].localeCompare(EU27[b]));
+  const missing = codes.filter(c => !cs[c]);
+  const fill = c => cs[c] ? 'ok' : past ? 'late' : 'none';
+  const cls = c => fill(c) + (openBy.has(c) ? ' case' : '');
+  const order = [...codes].sort((a, b) => openBy.has(a) - openBy.has(b));   // outlined countries drawn last, so the outline shows
+  const tip = c => `${EU27[c]}: ${cs[c] ? `${cs[c].n} national measure${cs[c].n > 1 ? 's' : ''} notified${cs[c].last ? `, latest ${dShort(cs[c].last)}` : ''}` : 'no national measures notified'}${openBy.has(c) ? `. Open infringement case: ${openBy.get(c).stage.toLowerCase()}` : ''}`;
+  const small = ['MT', 'LU'].filter(c => m.c[c]).map(c => `<circle class="${cls(c)}" cx="${m.c[c][0]}" cy="${m.c[c][1]}" r="7"><title>${esc(tip(c))}</title></circle>`).join('');
+  const lead = due
+    ? (past ? `The deadline for national laws was ${dLong(due)}.` : `EU countries have until ${dLong(due)} to bring their national laws in line.`)
+    : 'A directive only takes effect once each country writes it into national law.';
+  const used = new Set(codes.map(fill));
+  return `<p class="c-lead"><b>${done} of 27</b> countries have notified national measures to the European Commission. ${lead}</p>
+    <div class="c-wrap"><svg class="c-svg" viewBox="0 0 ${m.w} ${m.h}" role="img" aria-label="Map of the EU countries that have notified national measures">
+      <path class="o" d="${m.other}"/>${order.map(c => `<path class="${cls(c)}" d="${m.eu[c]}"><title>${esc(tip(c))}</title></path>`).join('')}${small}</svg>
+    <div class="c-key">
+      <div class="c-legend">${used.has('ok') ? '<span class="ok">Measures notified</span>' : ''}${used.has('late') ? '<span class="late">Not notified, deadline passed</span>' : ''}${used.has('none') ? '<span class="none">Not notified yet</span>' : ''}${open.length ? '<span class="case">Open infringement case</span>' : ''}</div>
+      <h3>${missing.length ? `Not notified (${missing.length})` : 'All 27 countries have notified'}</h3>
+      ${missing.length ? `<p class="c-missing">${missing.map(c => esc(EU27[c])).join(', ')}</p>` : ''}
+    </div></div>
+    ${open.length ? `<h3>Open infringement cases</h3><ul class="c-cases">${open.map(x => `<li><b>${esc(EU27[x.c])}</b><span>${esc(x.stage)} · since ${dShort(x.since)}</span><em>${x.type === 'late' ? 'National law not notified in time' : 'Rules not applied correctly'}${x.no ? ` · case ${esc(x.no)}` : ''}</em></li>`).join('')}</ul>` : ''}
+    ${all.length ? `<p class="c-note">${open.length ? `${open.length} case${open.length > 1 ? 's are' : ' is'} still open. A case can stay open after a country has notified some measures, when the Commission considers them incomplete.` : 'No case is open today.'}${closed ? ` ${closed} earlier case${closed > 1 ? 's have' : ' has'} been closed, usually because the country caught up.` : ''} Case numbers can be looked up in <a href="${INFR_URL}" target="_blank" rel="noopener">the Commission's register ↗</a>.</p>` : ''}
+    <p class="c-source">Sources: national transposition measures on EUR-Lex; European Commission infringement register. Map: Natural Earth. A notification means a country has reported the laws it uses to apply the directive. It does not show how well they work in practice.</p>`;
 }
 
 // How "newsworthy" a decision is, for the front page
@@ -141,6 +211,14 @@ function heroPhoto() {
 }
 
 // ---------------------------------------------------------------- router
+// Anonymous visit count (GoatCounter: no cookie, no IP stored). Search words are never sent.
+function countVisit() {
+  const path = location.pathname + (location.hash.startsWith('#/search') ? '#/search' : location.hash);
+  const go = () => window.goatcounter.count({ path, title: document.title });
+  if (window.goatcounter && window.goatcounter.count) go();
+  else { const gc = document.getElementById('gc'); if (gc) gc.addEventListener('load', () => window.goatcounter && window.goatcounter.count && go(), { once: true }); }
+}
+
 function route() {
   usedPhotos.clear();
   const hp = heroPhoto(); if (hp) usedPhotos.set(hp.url, hp);
@@ -154,6 +232,7 @@ function route() {
   else renderFront();
   renderCredits();
   window.scrollTo(0, 0);
+  countVisit();
 }
 
 function renderCredits() {
@@ -448,14 +527,16 @@ function renderDecision(d) {
     <article>
       <span class="kicker">${esc(s.name)}<span class="k2">${esc(d.kind)} · ${esc(d.ref)}</span>${isNew(d) ? '<span class="tag new">New</span>' : ''}</span>
       <h1 class="hl">${esc(d.headline)}</h1>
+      ${endedNote(d)}
       <p class="dek">${esc(dek(d))}</p>
       <div class="meta"><span>Adopted ${dLong(d.date)}</span><span>·</span><span>Tracked by ${esc(D.site.name)}</span><span>·</span><a class="share" href="decision/${encodeURIComponent(d.id)}.html" data-share="${esc(d.headline)}">Share ↗</a></div>
       <figure>${img(p, s.name)}${credit(p)}</figure>
+      ${euSummary(d)}
       <div class="official"><b>Official title</b>${esc(d.title)}</div>
     </article>
     <aside><div class="scorebox">
       <div class="lbl">${sc.label}</div>
-      ${sc.pct == null ? `<div class="status-big ${sc.cls}">${sc.cls === 'good' ? '✓' : '…'}</div>`
+      ${sc.pct == null ? `<div class="status-big ${sc.cls}">${sc.cls === 'good' ? '✓' : sc.cls === 'ended' ? '–' : '…'}</div>`
         : `<div class="ring">${ring(sc.pct, sc.cls)}<div class="num">${sc.pct}%<small>${sc.kind === 'goal' ? 'of the way to the goal' : 'of milestones reached'}</small></div></div>`}
       <div class="verdict ${sc.cls}">${sc.verdict}</div>
       <p class="why">${esc(sc.why)}</p>
@@ -465,6 +546,8 @@ function renderDecision(d) {
         <div><dt>Next milestone</dt><dd>${next ? dShort(next.date) : 'None left'}</dd></div>
         <div><dt>Follow-up actions</dt><dd>${nFollow}</dd></div>
         <div><dt>Later amended</dt><dd>${nl(d, 'amended_by') ? nl(d, 'amended_by') + '×' : 'No'}</dd></div>
+        ${d.nat ? `<div><dt>National laws</dt><dd>${natCount(d)} of 27 countries</dd></div>
+        <div><dt>Open infringement cases</dt><dd>${openCases(d).length || 'None'}</dd></div>` : ''}
       </dl>
     </div></aside>
   </div>
@@ -475,11 +558,13 @@ function renderDecision(d) {
       <button data-p="chart">Progress chart<span>${sc.kind === 'goal' ? 'Promises vs. reality, in numbers' : 'How far the rollout has come'}</span></button>
       <button data-p="map">Decision map<span>Everything connected to this decision</span></button>
       <button data-p="timeline">Timeline<span>Every step, past and future</span></button>
+      ${d.nat ? '<button data-p="countries">Country map<span>Which EU countries have applied it</span></button>' : ''}
       <a href="${eurlex(d.id)}" target="_blank" rel="noopener">Official text ↗<span>Read it on EUR-Lex</span></a>
     </div>
     <div class="panel" id="p-chart"></div>
     <div class="panel" id="p-map"></div>
     <div class="panel" id="p-timeline"></div>
+    <div class="panel" id="p-countries"></div>
   </section>
 
   ${related.length ? `<div class="section-title"><h2>More in ${esc(s.name)}</h2><a href="#/section/${s.id}">See all →</a></div>
@@ -487,7 +572,7 @@ function renderDecision(d) {
     <a href="#/decision/${encodeURIComponent(x.id)}">${img(ph, x.headline)}<div class="hl">${esc(x.headline)}</div></a>
     <div class="meta">${pill(x)}</div></article>`; }).join('')}</section>` : ''}`;
 
-  const panels = { chart: () => drawChart(d, sc), map: () => drawMap(d, sc), timeline: () => drawTimeline(d) };
+  const panels = { chart: () => drawChart(d, sc), map: () => drawMap(d, sc), timeline: () => drawTimeline(d), countries: () => drawCountries(d) };
   document.querySelector('.dig-buttons').onclick = e => {
     const b = e.target.closest('button'); if (!b) return;
     const el = document.getElementById('p-' + b.dataset.p), open = !el.classList.contains('on');

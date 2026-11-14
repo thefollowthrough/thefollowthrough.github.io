@@ -75,3 +75,13 @@ Ces pages ont aussi leur image et leur titre d'aperçu : un lien partagé sur Wh
 ## Périodes couvertes
 - Security & Defence : les 2 dernières années (`site.years_back` dans `config.json`).
 - Les autres rubriques remontent au 1er décembre 2019, début de la Commission von der Leyen (`since` de chaque rubrique). Les décisions de politique étrangère (sanctions, missions, aide militaire) restent sur 2 ans partout.
+
+## Ce qui se passe après le vote
+Chaque matin, le robot ajoute aussi, pour chaque décision :
+- **Les 27 pays** (directives seulement) : quels pays ont notifié à la Commission leurs lois nationales d'application, et la date limite. Source : mesures nationales de transposition sur EUR-Lex (base Cellar).
+- **Les procédures d'infraction** : les dossiers ouverts par la Commission contre un pays pour retard ou mauvaise application, avec leur étape (mise en demeure, avis motivé, saisine de la Cour). Source : registre des décisions d'infraction de la Commission. Si le registre est indisponible, le robot garde les dossiers de la veille.
+- **Abrogation** : si une décision n'est plus en vigueur, la page le dit et renvoie vers le texte qui l'a remplacée.
+- **Le résumé officiel** : quand l'UE a publié un résumé en langage clair (« Summaries of EU legislation »), son premier paragraphe s'affiche avec un lien. Les résumés sont mis en cache dans `ai_cache.json` (clés `sum:…`) pour ne pas les retélécharger.
+
+## Mesure d'audience
+Les visites sont comptées par GoatCounter (gratuit, sans cookie, sans adresse IP, donc sans bandeau de consentement). Le tableau de bord est sur https://thefollowthrough.goatcounter.com une fois le compte créé. Les mots tapés dans la recherche ne sont jamais envoyés.

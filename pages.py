@@ -39,7 +39,17 @@ def milestones(d):
     return sorted(((k, v) for k, v in ms.items() if k < "9999"))
 
 
+EU27 = {"AT": "Austria", "BE": "Belgium", "BG": "Bulgaria", "HR": "Croatia", "CY": "Cyprus", "CZ": "Czechia", "DK": "Denmark",
+        "EE": "Estonia", "FI": "Finland", "FR": "France", "DE": "Germany", "EL": "Greece", "HU": "Hungary", "IE": "Ireland",
+        "IT": "Italy", "LV": "Latvia", "LT": "Lithuania", "LU": "Luxembourg", "MT": "Malta", "NL": "Netherlands", "PL": "Poland",
+        "PT": "Portugal", "RO": "Romania", "SK": "Slovakia", "SI": "Slovenia", "ES": "Spain", "SE": "Sweden"}
+
+
 def score(d, targets, today):
+    if d.get("ended"):
+        x = d["ended"]
+        return None, "No longer in force", ((f"It stopped applying on {dlong(x['date'])}." if x.get("date") else "It no longer applies.")
+                                            + (f" It was replaced by {x['by_ref']}." if x.get("by") else ""))
     if d.get("targets") and d["targets"][0] in targets:
         t = targets[d["targets"][0]]
         return t["progress"], "Goal progress", f"Europe is {t['progress']}% of the way to the goal this decision serves: “{t['short']}”."
@@ -71,7 +81,8 @@ def dek(d, today):
         s += f" Next step: {v.split(' (')[0].lower()} on {dlong(k)}"
         s += f", with {len(future) - 1} more milestone{'s' if len(future) > 2 else ''} after that." if len(future) > 1 else "."
     elif d.get("in_force"):
-        s += f" In force since {dlong(d['in_force'][0])}."
+        end = (d.get("ended") or {}).get("date")
+        s += f" It applied from {dlong(d['in_force'][0])} to {dlong(end)}." if end else f" In force since {dlong(d['in_force'][0])}."
     n = d.get("links_n", {}).get("based_on", len(d["links"].get("based_on", [])))
     if n:
         s += f" {n} follow-up action{'s' if n > 1 else ''} so far."
@@ -95,7 +106,7 @@ def img_url(p):
 HERO = None   # hemicycle photo of the day, set in build()
 
 
-def page(cfg, *, title, description, path, body, image=None, og_type="website", jsonld=None, css_v="15"):
+def page(cfg, *, title, description, path, body, image=None, og_type="website", jsonld=None, css_v="17"):
     site = cfg["site"]
     base = site["url"].rstrip("/")
     url = f"{base}/{path}" if path else f"{base}/"
@@ -141,6 +152,7 @@ def page(cfg, *, title, description, path, body, image=None, og_type="website", 
 .static .row-list .hl {{ font-size: 19px; margin: 4px 0; }}
 </style>
 {ld}
+<script data-goatcounter="https://thefollowthrough.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
 <body>
 <header class="hero" style="background-image:url('{e(HERO["url"]) if HERO else ""}')">
@@ -174,6 +186,27 @@ def decision_page(d, data, cfg, by_topic, today):
         if k > today:
             rows.append((v.split(" (")[0], dlong(k)))
     facts = "".join(f"<li><span>{e(a)}</span><b>{b if a == 'Official reference' else e(b)}</b></li>" for a, b in rows)
+    extra = ""
+    if d.get("ended"):
+        x = d["ended"]
+        by = (f' It was replaced by <a href="{eurlex(x["by"])}" rel="noopener">{e(x["by_ref"])}</a>.' if x.get("by") else "")
+        extra += f'<p class="official"><b>No longer in force</b>{" since " + dlong(x["date"]) if x.get("date") else ""}.{by}</p>'
+    if d.get("eu_summary"):
+        x = d["eu_summary"]
+        extra += (f'<h2>Summary</h2><p>{e(x["aim"])}</p>'
+                  f'<p><a href="{e(x["url"])}" rel="noopener">Full summary on EUR-Lex</a></p>')
+    if d.get("nat") is not None:
+        cs = d["nat"].get("countries") or {}
+        due = d["nat"].get("due")
+        open_ = [x for x in d.get("infr") or [] if x["open"]]
+        missing = [EU27[c] for c in sorted(EU27, key=EU27.get) if c not in cs]
+        extra += (f'<h2>Across the 27 countries</h2><p><b>{len(cs)} of 27</b> countries have notified national measures to the European Commission.'
+                  + (f' The deadline for national laws {"was" if due <= today else "is"} {dlong(due)}.' if due else "")
+                  + (f' Not notified yet: {e(", ".join(missing))}.' if missing and len(missing) < 27 else "") + "</p>")
+        if open_:
+            extra += ('<p>Open infringement cases: ' + e("; ".join(f'{EU27.get(x["c"], x["c"])} ({x["stage"].lower()}, since {dlong(x["since"])})'
+                                                              for x in sorted(open_, key=lambda x: EU27.get(x["c"], "")))) + ".</p>")
+        extra += '<p class="caption">Sources: national transposition measures on EUR-Lex; European Commission infringement register.</p>'
     follow = d["links"].get("based_on", []) + d["links"].get("amended_by", [])
     follow_html = ("<h2>What came next</h2><ul class=\"links\">" + "".join(
         f'<li>{dlong(x["date"])}: <a href="{eurlex(x["id"])}" rel="noopener">{e(x.get("label") or x["id"])}</a></li>' for x in follow[:12]) + "</ul>") if follow else ""
@@ -194,6 +227,7 @@ def decision_page(d, data, cfg, by_topic, today):
 <ul class="facts">{facts}</ul>
 <h2>The official title</h2>
 <p class="official">{e(d['title'])}</p>
+{extra}
 {follow_html}
 {related}"""
     ld = {"@context": "https://schema.org", "@type": "NewsArticle", "headline": d["headline"][:110],
@@ -264,7 +298,7 @@ def about_page(data, cfg):
 <p class="dek">An independent, non-commercial tracker of EU decisions and of their implementation, based on official sources.</p>
 
 <h2>What we do</h2>
-<p>Every day, a program reads the EU's official journal and lists the main decisions taken in the last two years: laws passed by the European Parliament and the Council, Council regulations and directives, and foreign-policy decisions such as sanctions, missions and military aid. For each one we show its legal milestones (entry into force, deadlines), what came next (follow-up acts, reports, amendments) and, when it serves a measurable EU target, how far Europe is from that target according to official statistics.</p>
+<p>Every day, a program reads the EU's official journal and lists the main decisions taken since December 2019 (the last two years for foreign-policy decisions): laws passed by the European Parliament and the Council, Council regulations and directives, and foreign-policy decisions such as sanctions, missions and military aid. For each one we show its legal milestones (entry into force, deadlines), what came next (follow-up acts, reports, amendments, repeal), the EU's own plain-language summary when one exists, for directives which of the 27 countries have reported their national laws and whether the Commission has opened infringement cases, and, when it serves a measurable EU target, how far Europe is from that target according to official statistics.</p>
 <p>The Follow-Through is <b>not affiliated with the European Union</b> or any of its institutions, and is not funded by any of them.</p>
 
 <h2>How we score</h2>
@@ -274,7 +308,12 @@ def about_page(data, cfg):
 <h2>Sources</h2>
 <ul class="links">
 <li><b>Decisions</b>: EUR-Lex and the Publications Office of the European Union (Cellar database). © European Union. Reused under Commission Decision 2011/833/EU on the reuse of Commission documents.</li>
+<li><b>National laws</b>: national transposition measures notified by EU countries, published on EUR-Lex. © European Union.</li>
+<li><b>Official summaries</b>: Summaries of EU legislation, EUR-Lex. © European Union.</li>
+<li><b>Infringement cases</b>: the European Commission's register of infringement decisions. © European Union.</li>
+<li><b>Laws in negotiation</b>: European Parliament open data. © European Union.</li>
 <li><b>Statistics</b>: Eurostat. © European Union.</li>
+<li><b>Map</b>: Natural Earth (public domain).</li>
 <li><b>Photographs</b>: Wikimedia Commons, each under the free licence and author named under the photo and in the page footer.</li>
 </ul>
 
@@ -284,7 +323,8 @@ def about_page(data, cfg):
 
 <h2>Privacy</h2>
 <ul class="links">
-<li>No cookies, no advertising, no tracking or audience measurement, no account to create.</li>
+<li>No cookies, no advertising, no tracking across sites, no account to create.</li>
+<li>We count visits with <a href="https://www.goatcounter.com" rel="noopener">GoatCounter</a>, an open-source tool that sets no cookie and stores no IP address or personal data. It records only the page visited, the referring site, the browser, the screen size and the country, in anonymous totals. The searches you type on this site are not sent.</li>
 <li>Fonts are served from this site: your browser does not contact Google to display the page.</li>
 <li>The site is hosted by GitHub Pages. Like any web host, GitHub records technical data such as IP addresses in its server logs (see the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">GitHub privacy statement</a>).</li>
 <li>Photographs are loaded from Wikimedia's servers, which therefore receive your IP address (see the <a href="https://foundation.wikimedia.org/wiki/Policy:Privacy_policy" rel="noopener">Wikimedia privacy policy</a>).</li>
@@ -299,7 +339,7 @@ def about_page(data, cfg):
 <p><b>Éditeur</b> : ce site est édité par un particulier, à titre non professionnel, qui a choisi de rester anonyme conformément à l'article 6, III, 2 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique (LCEN). Ses coordonnées ont été communiquées à l'hébergeur.</p>
 <p><b>Hébergeur</b> : GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis — <a href="https://support.github.com" rel="noopener">support.github.com</a>. Établissement européen : GitHub B.V., Prins Bernhardplein 200, 1097 JB Amsterdam, Pays-Bas.</p>
 <p><b>Contact et signalements</b> : par une « issue » sur <a href="{ISSUES}" rel="noopener">la page GitHub du site</a>. Tout contenu illicite peut aussi être signalé à l'hébergeur.</p>
-<p><b>Données personnelles</b> : le site ne dépose aucun cookie et ne collecte aucune donnée personnelle. Voir la rubrique « Privacy » ci-dessus pour les données techniques traitées par l'hébergeur et par Wikimedia.</p>
+<p><b>Données personnelles</b> : le site ne dépose aucun cookie et ne collecte aucune donnée personnelle. La mesure d'audience (GoatCounter) est anonyme : sans cookie, sans conservation de l'adresse IP, elle ne produit que des statistiques globales et est donc exemptée de consentement. Voir la rubrique « Privacy » ci-dessus pour les données techniques traitées par l'hébergeur et par Wikimedia.</p>
 <p><b>Propriété intellectuelle</b> : textes sous licence Creative Commons BY-NC 4.0 ; données de l'Union européenne © Union européenne ; photographies sous les licences libres indiquées pour chacune.</p>
 <p><b>Indépendance</b> : site indépendant, sans lien avec l'Union européenne ni avec ses institutions.</p>
 </div>"""
