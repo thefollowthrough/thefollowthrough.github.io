@@ -268,13 +268,15 @@
     "greenhouse",
     "carbon",
     "CO2",
-    "fuel",
     "methane",
     "fluorinated",
     "market stability reserve",
     "allowance",
     "ETS",
-    "2040"
+    "2040",
+    "alternative fuels",
+    "low-carbon fuels",
+    "climate neutrality"
    ],
    "label": "EU net greenhouse gas emissions"
   },
@@ -298,12 +300,11 @@
    },
    "keywords": [
     "renewable",
-    "energy",
-    "electricity",
-    "hydrogen",
-    "grid",
     "solar",
-    "wind"
+    "wind",
+    "hydrogen",
+    "electricity market",
+    "heat pump"
    ],
    "label": "Share of renewables in EU energy use"
   },
@@ -329,11 +330,11 @@
     }
    },
    "keywords": [
-    "employment",
-    "jobs",
-    "labour market",
-    "unemploy",
     "Globalisation Adjustment Fund",
+    "employment services",
+    "youth employment",
+    "unemployment",
+    "labour market",
     "traineeship",
     "pay transparency",
     "platform work"
@@ -390,7 +391,6 @@
    },
    "keywords": [
     "ICT",
-    "skills",
     "artificial intelligence",
     "chips",
     "semiconductor",
@@ -423,7 +423,6 @@
     "ecodesign",
     "energy label",
     "heating",
-    "cooling",
     "buildings"
    ]
   },
@@ -486,11 +485,9 @@
    "keywords": [
     "digital skills",
     "digital education",
-    "online",
-    "internet",
-    "accessibility",
-    "digital identity",
-    "European Digital Identity"
+    "Year of Skills",
+    "European Digital Identity",
+    "digital identity"
    ]
   },
   {
@@ -542,14 +539,14 @@
    },
    "keywords": [
     "organic",
-    "agricultur",
-    "farm",
     "pesticide",
     "plant protection",
     "fertilis",
-    "soil",
-    "rural",
-    "Common Agricultural Policy"
+    "Common Agricultural Policy",
+    "strategic plans",
+    "good agricultural and environmental condition",
+    "Agricultural Fund for Rural Development",
+    "conditionality"
    ]
   }
  ],

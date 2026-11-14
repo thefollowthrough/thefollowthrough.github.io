@@ -527,7 +527,8 @@ function drawChart(d, sc) {
   const per = t.unit === '%' ? 'percentage points' : t.unit;
   const dp = Math.abs(t.need_rate) < 10 ? 1 : 0;
   return `<h3>${esc(t.title)}</h3>
-    <p class="sub">${esc(t.label)}${t.unit === '%' ? '' : ` (${esc(t.unit)})`}. Goal set by: ${esc(t.basis)}. Data: ${esc(t.source)}. This decision is one of the tools meant to get there.</p>
+    <p class="sub">${esc(t.label)}${t.unit === '%' ? '' : ` (${esc(t.unit)})`}. Goal set by: ${esc(t.basis)}. Data: ${esc(t.source)}.</p>
+    ${whyGoal(d, t)}
     <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">${g}
       <path d="${path(promised)}" fill="none" stroke="var(--good)" stroke-width="2.5" stroke-dasharray="7 5"/>
       <path d="M${X(ly)},${Y(lv)}L${X(projEnd)},${Y(projV)}" fill="none" stroke="var(--bad)" stroke-width="2" stroke-dasharray="2 4"/>
@@ -539,18 +540,40 @@ function drawChart(d, sc) {
     </svg>
     <div class="legend"><span><i style="border-color:var(--eu)"></i>What actually happened</span><span><i style="border-color:var(--good);border-top-style:dashed"></i>What was promised</span><span><i style="border-color:var(--bad);border-top-style:dotted"></i>If the current pace continues</span></div>
     <p style="margin:16px 0 0"><b class="verdict ${v.cls}" style="display:inline">${verdictTxt(v)}.</b> Over the last decade the figure moved by ${fmt(Math.abs(t.real_rate), dp)} ${esc(per)} a year${(t.real_rate > 0) !== up && t.real_rate ? ' in the wrong direction' : ''}; reaching the goal needs ${fmt(Math.abs(t.need_rate), dp)} ${esc(per)} a year${up ? ' up' : ' down'}.</p>
-    ${t.sectors ? sectorBars(t) : ''}`;
+    ${t.sectors ? sectorBars(t, d) : ''}`;
 }
 
-function sectorBars(t) {
+// "Why this goal?": the words in the decision's title that tie it to the target, in plain English
+const GLOSS = { 'market stability reserve': 'the EU carbon market, which makes polluters pay for each tonne of CO₂',
+  'ETS': 'the EU carbon market', 'allowance': 'carbon-market allowances', 'carbon': 'carbon emissions',
+  'Globalisation Adjustment Fund': 'EU support to help laid-off workers find new jobs', 'Common Agricultural Policy': 'EU farm subsidies',
+  'conditionality': 'the environmental conditions attached to EU farm subsidies', 'strategic plans': 'national plans for EU farm subsidies' };
+function whyGoal(d, t) {
+  const kw = d.target_why;
+  if (!kw) return '<p class="sub">This decision is one of the tools meant to get there.</p>';
+  return `<p class="why-goal"><b>Why this goal?</b> This decision deals with “${esc(kw)}”${GLOSS[kw] ? ` (${esc(GLOSS[kw])})` : ''}, one of the levers for this target.${t.sectors && affected(d).length ? ` Sectors it covers are highlighted below.` : ''}</p>`;
+}
+// sectors of the emissions chart that a decision's title names
+function affected(d) {
+  const low = d.title.toLowerCase(), out = [];
+  if (/building|heating/.test(low)) out.push('Buildings');
+  if (/road transport|vehicle|cars?\b|aviation|maritime|transport|fuels?\b/.test(low)) out.push('Transport');
+  if (/industr|steel|cement/.test(low)) out.push('Industry');
+  if (/power|electricity/.test(low)) out.push('Power plants');
+  if (/agricultur|farm/.test(low)) out.push('Farming');
+  if (/waste|landfill/.test(low)) out.push('Waste');
+  return out;
+}
+function sectorBars(t, d) {
+  const hit = d ? affected(d) : [];
   const rows = Object.entries(t.sectors).map(([name, s]) => {
     const ys = Object.keys(s).map(Number).sort((a, b) => a - b), ly = ys[ys.length - 1];
     return { name, ch: (s[ly] / s[2005] - 1) * 100, ly };
   }).sort((a, b) => a.ch - b.ch);
   const max = Math.max(...rows.map(r => Math.abs(r.ch)));
   return `<h3 style="margin-top:26px">Who is cutting, who is not</h3><p class="sub">Change in emissions since 2005, by sector (Eurostat).</p>
-    ${rows.map(r => `<div style="display:grid;grid-template-columns:120px 1fr 64px;gap:10px;align-items:center;font:500 13.5px var(--sans);margin:7px 0">
-      <span>${esc(r.name)}</span><div style="background:#f1ede4;height:14px;border-radius:3px;position:relative">
+    ${rows.map(r => `<div style="display:grid;grid-template-columns:140px 1fr 64px;gap:10px;align-items:center;font:500 13.5px var(--sans);margin:7px 0">
+      <span style="${hit.includes(r.name) ? 'font-weight:800;color:var(--eu)' : ''}">${esc(r.name)}${hit.includes(r.name) ? ' ◀' : ''}</span><div style="background:#f1ede4;height:14px;border-radius:3px;position:relative">
       <span style="position:absolute;right:${r.ch < 0 ? 0 : 'auto'};left:${r.ch < 0 ? 'auto' : 0};width:${Math.abs(r.ch) / max * 100}%;height:100%;border-radius:3px;background:${r.ch <= -30 ? 'var(--good)' : r.ch <= -10 ? 'var(--warn)' : 'var(--bad)'}"></span></div>
       <b style="text-align:right">${r.ch > 0 ? '+' : ''}${fmt(r.ch, 0)}%</b></div>`).join('')}`;
 }

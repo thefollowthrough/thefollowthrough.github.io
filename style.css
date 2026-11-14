@@ -245,3 +245,5 @@ ul.plain { list-style: none; margin: 0; padding: 0; }
 
 .status-big { width: 120px; height: 120px; margin: 6px auto 4px; border-radius: 50%; border: 10px solid #e4dfd3; display: flex; align-items: center; justify-content: center; font: 800 46px/1 var(--serif-d); color: var(--muted); }
 .status-big.good { border-color: var(--good); color: var(--good); }
+
+.why-goal { background: #eef1f9; border-left: 3px solid var(--eu); padding: 10px 14px; font-size: 15.5px; margin: 6px 0 14px; }

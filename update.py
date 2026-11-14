@@ -617,6 +617,21 @@ def fetch_coming_up(cfg, first_year):
     return out
 
 
+def targets_for(d, cfg, available):
+    """Goals a decision feeds into: same section + a keyword in the title, best match first.
+    Returns (goal ids, the keyword that made the link, shown to readers as "why this goal")."""
+    if d["kind"].startswith("Foreign policy"):
+        return [], None   # sanctions, missions and military aid are not tools for these targets
+    low = subject_of(d["title"]).lower()
+    hits = []
+    for i, t in enumerate(cfg["targets"]):
+        found = [k for k in t["keywords"] if k.lower() in low]
+        if found and d["section"] == t["section"] and t["id"] in available:
+            hits.append((-len(found), i, t["id"], found[0]))
+    hits.sort()
+    return [h[2] for h in hits], (hits[0][3] if hits else None)
+
+
 # ---------------------------------------------------------------- main
 def main():
     cfg = json.load(open(os.path.join(HERE, "config.json"), encoding="utf-8"))
@@ -694,15 +709,8 @@ def main():
     targets = [{**{k: v for k, v in t.items() if k not in ("data", "keywords")}, **tdata[t["id"]]}
                for t in cfg["targets"] if t["id"] in tdata]
 
-    # targets each decision feeds into: same section + keyword in the title, best match first
     for d in decisions:
-        low = subject_of(d["title"]).lower()
-        hits = []
-        for i, t in enumerate(cfg["targets"]):
-            n = sum(1 for k in t["keywords"] if k.lower() in low)
-            if n and d["section"] == t["section"] and t["id"] in tdata:
-                hits.append((-n, i, t["id"]))
-        d["targets"] = [x[2] for x in sorted(hits)]
+        d["targets"], d["target_why"] = targets_for(d, cfg, tdata)
 
     print("European Parliament: laws in negotiation")
     try:

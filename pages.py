@@ -95,7 +95,7 @@ def img_url(p):
 HERO = None   # hemicycle photo of the day, set in build()
 
 
-def page(cfg, *, title, description, path, body, image=None, og_type="website", jsonld=None, css_v="14"):
+def page(cfg, *, title, description, path, body, image=None, og_type="website", jsonld=None, css_v="15"):
     site = cfg["site"]
     base = site["url"].rstrip("/")
     url = f"{base}/{path}" if path else f"{base}/"
