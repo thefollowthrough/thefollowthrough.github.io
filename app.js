@@ -36,7 +36,7 @@ function photoFor(d) {
   usedPhotos.set(p.url, p);
   return p;
 }
-const img = (p, alt = '', cls = '') => p ? `<img class="${cls}" src="${esc(p.url.replace("/1920px-", "/1280px-"))}" alt="${esc(alt || p.title)}" loading="lazy">` : '';
+const img = (p, alt = '', cls = '') => p ? `<img class="${cls}" src="${esc(p.url.replace("/1920px-", "/1280px-"))}" alt="${alt === null ? '' : esc(alt || p.title)}" loading="lazy">` : '';
 const credit = p => p ? `<div class="caption">Photo: ${esc(p.author)} / <a href="${esc(p.source)}" target="_blank" rel="noopener">${esc(p.licence)}</a></div>` : '';
 
 // ---------------------------------------------------------------- scoring
@@ -289,18 +289,18 @@ function renderFront() {
         </div>
       </div>
       <div class="lead-goals">
-        <h3>The Scorecard</h3>
+        <h2 class="h-small">The Scorecard</h2>
         <div class="lead-goals-grid">${D.targets.slice(0, 4).map(t => scoreCard(t, true)).join('')}</div>
         ${D.targets.length > 4 ? `<a class="more-goals" href="#/goals">All ${D.targets.length} goals we track →</a>` : ''}
       </div>
     </article>
-    <aside class="rail">
-      <h3>Just in</h3>
+    <div class="rail">
+      <h2 class="h-small">Just in</h2>
       <ul class="plain justin">${latest.map(d => `<li>
         <span class="kicker">${esc(SEC[d.section].kicker)}${isNew(d) ? '<span class="tag new">New</span>' : ''}</span>
         <a href="#/decision/${encodeURIComponent(d.id)}"><div class="hl">${esc(d.headline)}</div></a>
         <div class="meta">${dShort(d.date)}</div></li>`).join('')}</ul>
-    </aside>
+    </div>
   </section>
 
   <div class="section-title"><h2>Top stories</h2></div>
@@ -368,7 +368,7 @@ function renderGoals() {
   const bySec = D.sections.map(s => [s, D.targets.filter(t => t.section === s.id)]).filter(([, ts]) => ts.length);
   $app.innerHTML = `
     <div class="crumbs"><a href="#/">Front page</a> › The Scorecard</div>
-    <div class="section-title"><h2>The Scorecard</h2></div>
+    <div class="section-title"><h1>The Scorecard</h1></div>
     <p class="dek" style="max-width:760px">The EU has set itself numbers to hit by 2030. We check each one against the latest official statistics from Eurostat, every day. <b>${on} of ${n}</b> ${on === 1 ? 'is' : 'are'} on track.</p>
     ${bySec.map(([s, ts]) => `<div class="month"><a href="#/section/${s.id}">${esc(s.name)}</a></div>
       <div class="goals">${ts.map(t => scoreCard(t)).join('')}</div>`).join('')}
@@ -396,7 +396,7 @@ function renderComing(sec) {
   };
   $app.innerHTML = `
     <div class="crumbs"><a href="#/">Front page</a> › Coming up</div>
-    <div class="section-title"><h2>Coming up</h2></div>
+    <div class="section-title"><h1>Coming up</h1></div>
     <p class="dek" style="max-width:760px">Laws still being negotiated between the European Parliament and EU governments, how far each one has got, and the next vote on each. Once a law is signed, it moves to its section as a decision.</p>
     <div class="filters" id="cfilters"><a class="${sec ? '' : 'on'}" href="#/coming">All (${all.length})</a>${secs.map(s => `<a class="${sec === s.id ? 'on' : ''}" href="#/coming/${s.id}">${esc(s.name)} (${all.filter(x => x.section === s.id).length})</a>`).join('')}</div>
     ${soon.length ? `<div class="month">Votes coming up in Parliament</div>${soon.map(item).join('')}` : ''}
@@ -426,7 +426,7 @@ function renderSearch(q) {
   document.title = `Search · ${D.site.name}`;
   $app.innerHTML = `
     <div class="crumbs"><a href="#/">Front page</a> › Search</div>
-    <div class="section-title"><h2>Search ${D.decisions.length} EU decisions</h2></div>
+    <div class="section-title"><h1>Search ${D.decisions.length} EU decisions</h1></div>
     <input id="q" class="search-box" type="search" placeholder="Try: Ukraine sanctions, asylum, steel, Mauritania, 2026/2332…" value="${esc(q)}" autocomplete="off" aria-label="Search decisions">
     <p class="muted" id="count" style="font:500 14px var(--sans);margin:10px 0 0"></p>
     <div id="results"></div>`;
@@ -530,7 +530,7 @@ function renderDecision(d) {
       ${endedNote(d)}
       <p class="dek">${esc(dek(d))}</p>
       <div class="meta"><span>Adopted ${dLong(d.date)}</span><span>·</span><span>Tracked by ${esc(D.site.name)}</span><span>·</span><a class="share" href="decision/${encodeURIComponent(d.id)}.html" data-share="${esc(d.headline)}">Share ↗</a></div>
-      <figure>${img(p, s.name)}${credit(p)}</figure>
+      <figure>${img(p)}${credit(p)}</figure>
       ${euSummary(d)}
       <div class="official"><b>Official title</b>${esc(d.title)}</div>
     </article>
@@ -555,10 +555,10 @@ function renderDecision(d) {
   <section class="dig">
     <div class="section-title"><h2>Dig deeper</h2></div>
     <div class="dig-buttons">
-      <button data-p="chart">Progress chart<span>${sc.kind === 'goal' ? 'Promises vs. reality, in numbers' : 'How far the rollout has come'}</span></button>
-      <button data-p="map">Decision map<span>Everything connected to this decision</span></button>
-      <button data-p="timeline">Timeline<span>Every step, past and future</span></button>
-      ${d.nat ? '<button data-p="countries">Country map<span>Which EU countries have applied it</span></button>' : ''}
+      <button data-p="chart" aria-expanded="false" aria-controls="p-chart">Progress chart<span>${sc.kind === 'goal' ? 'Promises vs. reality, in numbers' : 'How far the rollout has come'}</span></button>
+      <button data-p="map" aria-expanded="false" aria-controls="p-map">Decision map<span>Everything connected to this decision</span></button>
+      <button data-p="timeline" aria-expanded="false" aria-controls="p-timeline">Timeline<span>Every step, past and future</span></button>
+      ${d.nat ? '<button data-p="countries" aria-expanded="false" aria-controls="p-countries">Country map<span>Which EU countries have applied it</span></button>' : ''}
       <a href="${eurlex(d.id)}" target="_blank" rel="noopener">Official text ↗<span>Read it on EUR-Lex</span></a>
     </div>
     <div class="panel" id="p-chart"></div>
@@ -569,14 +569,14 @@ function renderDecision(d) {
 
   ${related.length ? `<div class="section-title"><h2>More in ${esc(s.name)}</h2><a href="#/section/${s.id}">See all →</a></div>
   <section class="related">${related.map(x => { const ph = photoFor(x); return `<article>
-    <a href="#/decision/${encodeURIComponent(x.id)}">${img(ph, x.headline)}<div class="hl">${esc(x.headline)}</div></a>
+    <a href="#/decision/${encodeURIComponent(x.id)}">${img(ph, null)}<div class="hl">${esc(x.headline)}</div></a>
     <div class="meta">${pill(x)}</div></article>`; }).join('')}</section>` : ''}`;
 
   const panels = { chart: () => drawChart(d, sc), map: () => drawMap(d, sc), timeline: () => drawTimeline(d), countries: () => drawCountries(d) };
   document.querySelector('.dig-buttons').onclick = e => {
     const b = e.target.closest('button'); if (!b) return;
     const el = document.getElementById('p-' + b.dataset.p), open = !el.classList.contains('on');
-    document.querySelectorAll('.dig-buttons button').forEach(x => x.classList.toggle('on', open && x === b));
+    document.querySelectorAll('.dig-buttons button').forEach(x => { x.classList.toggle('on', open && x === b); x.setAttribute('aria-expanded', String(open && x === b)); });
     document.querySelectorAll('.panel').forEach(x => x.classList.remove('on'));
     if (open) { el.innerHTML = panels[b.dataset.p](); el.classList.add('on'); el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
   };

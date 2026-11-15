@@ -302,3 +302,14 @@ ul.plain { list-style: none; margin: 0; padding: 0; }
 #c-map .c-key h3 { margin-top: 18px; }
 #c-map .c-lead { font: 400 16.5px/1.5 var(--serif); color: var(--ink2); margin: 0 0 14px; }
 #c-map .c-lead b { color: var(--ink); }
+
+/* ---------- accessibility */
+.rail h2.h-small, .lead-goals h2.h-small { font: 800 13px/1 var(--sans); text-transform: uppercase; letter-spacing: .1em; margin: 0 0 14px; padding-bottom: 8px; border-bottom: 2px solid var(--rule-strong); }
+.section-title h1 { font: 800 26px/1 var(--serif-d); margin: 0; }
+.foot h2.foot-h { font: 800 12px/1 var(--sans); text-transform: uppercase; letter-spacing: .1em; margin: 6px 0 12px; }
+.crumbs a { text-decoration: underline; text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 2px; }
+#app:focus { outline: none; }
+.skip { position: absolute; left: 10px; top: -60px; z-index: 100; background: var(--ink); color: var(--paper); font: 700 14px/1 var(--sans); padding: 12px 16px; border-radius: 4px; }
+.skip:focus { top: 10px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }

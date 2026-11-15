@@ -106,7 +106,7 @@ def img_url(p):
 HERO = None   # hemicycle photo of the day, set in build()
 
 
-def page(cfg, *, title, description, path, body, image=None, og_type="website", jsonld=None, css_v="18"):
+def page(cfg, *, title, description, path, body, image=None, og_type="website", jsonld=None, css_v="19"):
     site = cfg["site"]
     base = site["url"].rstrip("/")
     url = f"{base}/{path}" if path else f"{base}/"
@@ -155,13 +155,14 @@ def page(cfg, *, title, description, path, body, image=None, og_type="website", 
 <script data-goatcounter="https://thefollowthrough.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <header class="hero" style="background-image:url('{e(HERO["url"]) if HERO else ""}')">
   <a href="/" class="seal" aria-label="The Follow-Through, front page"><img src="/seal.svg" alt="TFT seal"></a>
   <div class="plate title-plate"><a href="/" class="brand">{e(site['name'])}</a><div class="tagline">{e(site['tagline'])}</div></div>
   <div class="plate nav-plate"><nav class="sections"><div class="wrap"><a href="/">Front page</a><a href="/goals.html">Scorecard</a><a href="/coming.html">Coming up</a><a href="/#/search">Search</a>{''.join(f'<a href="/section/{s["id"]}.html">{e(s["name"])}</a>' for s in cfg["sections"])}</div></nav></div>
   {f'<div class="hero-credit">Photo: {e(HERO["author"])} / <a href="{e(HERO["source"])}" rel="noopener">{e(HERO["licence"])}</a></div>' if HERO else ""}
 </header>
-<main class="wrap static" style="padding-top:34px">
+<main id="main" class="wrap static" style="padding-top:34px">
 {body}
 </main>
 <footer class="foot"><div class="wrap"><div class="brand small">{e(site['name'])}</div>

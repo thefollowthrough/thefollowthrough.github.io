@@ -23,11 +23,12 @@
 <link rel="alternate" type="application/rss+xml" title="The Follow-Through" href="feed.xml">
 <meta name="theme-color" content="#faf8f3">
 <script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebSite","name":"The Follow-Through","alternateName":["TFT","The Follow-Through: Europe decided. Did it deliver?"],"url":"https://thefollowthrough.github.io/","description":"An independent tracker of EU decisions and whether they deliver."},{"@context":"https://schema.org","@type":"NewsMediaOrganization","name":"The Follow-Through","url":"https://thefollowthrough.github.io/","logo":"https://thefollowthrough.github.io/icon-512.png","publishingPrinciples":"https://thefollowthrough.github.io/about.html","correctionsPolicy":"https://thefollowthrough.github.io/about.html"}]</script>
-<link rel="stylesheet" href="fonts.css?v=18">
-<link rel="stylesheet" href="style.css?v=18">
+<link rel="stylesheet" href="fonts.css?v=19">
+<link rel="stylesheet" href="style.css?v=19">
 </head>
 <body>
-  <div class="topbar"><div class="wrap"><span id="today"></span><span id="tracking"></span><span id="updated"></span></div></div>
+  <a class="skip" href="#app" onclick="event.preventDefault();var m=document.getElementById('app');m.setAttribute('tabindex','-1');m.focus();">Skip to content</a>
+  <div class="topbar" role="region" aria-label="Site status"><div class="wrap"><span id="today"></span><span id="tracking"></span><span id="updated"></span></div></div>
   <header class="hero" id="hero">
     <a href="#/" class="seal" aria-label="The Follow-Through, front page"><img src="seal.svg" alt="TFT seal"></a>
     <div class="plate title-plate">
@@ -49,18 +50,18 @@
           <p><a href="about.html" style="text-decoration:underline">About, sources and legal notice</a> · <a href="https://github.com/thefollowthrough/thefollowthrough.github.io/issues" target="_blank" rel="noopener" style="text-decoration:underline">Report an error</a> · <a href="feed.xml" style="text-decoration:underline">RSS feed</a><br><span class="muted">Texts: CC BY-NC 4.0</span></p>
         </div>
         <div>
-          <h4>How we score</h4>
+          <h2 class="foot-h">How we score</h2>
           <p><b>Goal progress</b>: when a decision serves a measurable EU target, we show how far Europe has come toward that target, using official statistics.</p>
           <p><b>Rollout</b>: otherwise, we show how many of the decision's legal milestones (entry into force, deadlines) have passed.</p>
         </div>
         <div>
-          <h4>Photo credits</h4>
+          <h2 class="foot-h">Photo credits</h2>
           <ul id="credits" class="credits"></ul>
         </div>
       </div>
     </div>
   </footer>
 <script id="gc" data-goatcounter="https://thefollowthrough.goatcounter.com/count" data-goatcounter-settings='{"no_onload":true}' async src="https://gc.zgo.at/count.js"></script>
-<script src="app.js?v=18"></script>
+<script src="app.js?v=19"></script>
 </body>
 </html>
