@@ -6,8 +6,24 @@
     <atom:link href="https://thefollowthrough.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     <description>Europe decided. Did it deliver? New EU decisions, and whether they deliver.</description>
     <language>en</language>
-    <lastBuildDate>Mon, 23 Nov 2026 12:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 24 Nov 2026 12:00:00 +0000</lastBuildDate>
     <image><url>https://thefollowthrough.github.io/icon-192.png</url><title>The Follow-Through</title><link>https://thefollowthrough.github.io/</link></image>
+    <item>
+      <title>New EU military aid for Ukraine&#x27;s armed forces</title>
+      <link>https://thefollowthrough.github.io/decision/32026D2620.html</link>
+      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026D2620.html</guid>
+      <pubDate>Fri, 20 Nov 2026 12:00:00 +0000</pubDate>
+      <category>Security &amp; Defence</category>
+      <description>EU governments approved a new package under the European Peace Facility, the EU fund that pays for equipment and training for partner armies.</description>
+    </item>
+    <item>
+      <title>New EU military aid for Ukraine&#x27;s armed forces</title>
+      <link>https://thefollowthrough.github.io/decision/32026D2618.html</link>
+      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026D2618.html</guid>
+      <pubDate>Fri, 20 Nov 2026 12:00:00 +0000</pubDate>
+      <category>Security &amp; Defence</category>
+      <description>EU governments approved a new package under the European Peace Facility, the EU fund that pays for equipment and training for partner armies.</description>
+    </item>
     <item>
       <title>New EU military aid for Mauritania&#x27;s armed forces</title>
       <link>https://thefollowthrough.github.io/decision/32026D2449.html</link>
@@ -94,7 +110,7 @@
       <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026R2473.html</guid>
       <pubDate>Wed, 21 Oct 2026 12:00:00 +0000</pubDate>
       <category>Food &amp; Farming</category>
-      <description>Passed by the European Parliament and the Council on 21 October 2026. Next step: enters into force on 24 November 2026.</description>
+      <description>Passed by the European Parliament and the Council on 21 October 2026. In force since 24 November 2026.</description>
     </item>
     <item>
       <title>Rules rewritten: Market stability reserve for buildings, road transport and additional sectors</title>
@@ -471,22 +487,6 @@
       <pubDate>Fri, 26 Jun 2026 12:00:00 +0000</pubDate>
       <category>Security &amp; Defence</category>
       <description>EU governments approved a new package under the European Peace Facility, the EU fund that pays for equipment and training for partner armies. Jihadist violence from the Sahel has been spreading towards coastal West Africa.</description>
-    </item>
-    <item>
-      <title>EU decides: Union support for the universalisation and effective implementation of the International…</title>
-      <link>https://thefollowthrough.github.io/decision/32026D1450.html</link>
-      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026D1450.html</guid>
-      <pubDate>Fri, 26 Jun 2026 12:00:00 +0000</pubDate>
-      <category>Trade &amp; World</category>
-      <description>Foreign-policy decision by EU governments on 26 June 2026. In force since 26 June 2026.</description>
-    </item>
-    <item>
-      <title>EU backs Project on the reduction of ammunition safety risks in Ukraine</title>
-      <link>https://thefollowthrough.github.io/decision/32026D1448.html</link>
-      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026D1448.html</guid>
-      <pubDate>Fri, 26 Jun 2026 12:00:00 +0000</pubDate>
-      <category>Security &amp; Defence</category>
-      <description>Foreign-policy decision by EU governments on 26 June 2026. In force since 26 June 2026.</description>
     </item>
   </channel>
 </rss>
