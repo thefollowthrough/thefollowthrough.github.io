@@ -6,8 +6,24 @@
     <atom:link href="https://thefollowthrough.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     <description>Europe decided. Did it deliver? New EU decisions, and whether they deliver.</description>
     <language>en</language>
-    <lastBuildDate>Tue, 24 Nov 2026 12:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 25 Nov 2026 12:00:00 +0000</lastBuildDate>
     <image><url>https://thefollowthrough.github.io/icon-192.png</url><title>The Follow-Through</title><link>https://thefollowthrough.github.io/</link></image>
+    <item>
+      <title>EU backs Enhancing the operational effectiveness of the Organisation for the Prohibition of…</title>
+      <link>https://thefollowthrough.github.io/decision/32026D2619.html</link>
+      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026D2619.html</guid>
+      <pubDate>Mon, 23 Nov 2026 12:00:00 +0000</pubDate>
+      <category>Security &amp; Defence</category>
+      <description>Foreign-policy decision by EU governments on 23 November 2026. In force since 23 November 2026.</description>
+    </item>
+    <item>
+      <title>EU decides: Union support for the activities of the Preparatory Commission for the Comprehensive…</title>
+      <link>https://thefollowthrough.github.io/decision/32026D2615.html</link>
+      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026D2615.html</guid>
+      <pubDate>Mon, 23 Nov 2026 12:00:00 +0000</pubDate>
+      <category>Security &amp; Defence</category>
+      <description>Foreign-policy decision by EU governments on 23 November 2026. In force since 23 November 2026.</description>
+    </item>
     <item>
       <title>New EU military aid for Ukraine&#x27;s armed forces</title>
       <link>https://thefollowthrough.github.io/decision/32026D2620.html</link>
@@ -471,22 +487,6 @@
       <pubDate>Wed, 08 Jul 2026 12:00:00 +0000</pubDate>
       <category>Jobs &amp; Society</category>
       <description>Passed by the European Parliament and the Council on 8 July 2026. In force since 8 July 2026.</description>
-    </item>
-    <item>
-      <title>Fishing quotas set for 2026, 2027 and 2028</title>
-      <link>https://thefollowthrough.github.io/decision/32026R1547.html</link>
-      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026R1547.html</guid>
-      <pubDate>Wed, 01 Jul 2026 12:00:00 +0000</pubDate>
-      <category>Food &amp; Farming</category>
-      <description>Adopted by the Council of the EU on 1 July 2026. In force since 1 January 2026.</description>
-    </item>
-    <item>
-      <title>New EU military aid for the Togolese armed forces</title>
-      <link>https://thefollowthrough.github.io/decision/32026D1464.html</link>
-      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026D1464.html</guid>
-      <pubDate>Fri, 26 Jun 2026 12:00:00 +0000</pubDate>
-      <category>Security &amp; Defence</category>
-      <description>EU governments approved a new package under the European Peace Facility, the EU fund that pays for equipment and training for partner armies. Jihadist violence from the Sahel has been spreading towards coastal West Africa.</description>
     </item>
   </channel>
 </rss>
