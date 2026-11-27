@@ -6,8 +6,16 @@
     <atom:link href="https://thefollowthrough.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     <description>Europe decided. Did it deliver? New EU decisions, and whether they deliver.</description>
     <language>en</language>
-    <lastBuildDate>Thu, 26 Nov 2026 12:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 27 Nov 2026 12:00:00 +0000</lastBuildDate>
     <image><url>https://thefollowthrough.github.io/icon-192.png</url><title>The Follow-Through</title><link>https://thefollowthrough.github.io/</link></image>
+    <item>
+      <title>EU adopts a new sanctions decision on Russia over the war in Ukraine</title>
+      <link>https://thefollowthrough.github.io/decision/32026R2632.html</link>
+      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026R2632.html</guid>
+      <pubDate>Wed, 25 Nov 2026 12:00:00 +0000</pubDate>
+      <category>Security &amp; Defence</category>
+      <description>EU sanctions usually mean asset freezes and travel bans for the people and companies listed, and sometimes trade bans.</description>
+    </item>
     <item>
       <title>EU backs Enhancing the operational effectiveness of the Organisation for the Prohibition of…</title>
       <link>https://thefollowthrough.github.io/decision/32026D2619.html</link>
@@ -479,14 +487,6 @@
       <pubDate>Wed, 08 Jul 2026 12:00:00 +0000</pubDate>
       <category>Jobs &amp; Society</category>
       <description>Passed by the European Parliament and the Council on 8 July 2026. In force since 21 July 2026.</description>
-    </item>
-    <item>
-      <title>Disaster aid: EU sends money to Romania</title>
-      <link>https://thefollowthrough.github.io/decision/32026D1809.html</link>
-      <guid isPermaLink="true">https://thefollowthrough.github.io/decision/32026D1809.html</guid>
-      <pubDate>Wed, 08 Jul 2026 12:00:00 +0000</pubDate>
-      <category>Jobs &amp; Society</category>
-      <description>Passed by the European Parliament and the Council on 8 July 2026. In force since 8 July 2026.</description>
     </item>
   </channel>
 </rss>
